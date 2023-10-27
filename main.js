@@ -2,6 +2,7 @@
  * setup
  *************************************************/
 
+// parameters
 const oceanBackground = "#7FFFD4"; // aquamarine
 const shotMissColor = "AntiqueWhite";
 const shotHitColor = "coral";
@@ -11,6 +12,11 @@ const shipSizes = {
   cruiser: 6,
   battleship: 9
 };
+const shipCapacities = {
+  destroyer: 2,
+  cruiser: 3,
+  battleship: 5
+};
 const showCircleTime = 1000;
 const tempCircleInfo = {
   x : undefined,
@@ -18,6 +24,7 @@ const tempCircleInfo = {
   r : undefined
 };
 
+// html elements
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 canvas.addEventListener("click", processRound);
@@ -31,10 +38,9 @@ cHistory.addEventListener("change", drawOcean);
 const shipReport = document.getElementById("ship-report");
 const narrative = document.getElementById("narrative");
 
-// initial game state:
+// game state:
 const state = {
   shooting : "u",
-  playing : true,
   winner : undefined,
   cShips : [
     {
@@ -43,7 +49,7 @@ const state = {
       x : undefined,
       y : undefined,
       damage : 0,
-      capacity : 2
+      capacity : shipCapacities.destroyer
     },
     {
       type : "cruiser",
@@ -51,7 +57,7 @@ const state = {
       x : undefined,
       y : undefined,
       damage : 0,
-      capacity : 3
+      capacity : shipCapacities.cruiser
     },
     {
       type : "battleship",
@@ -59,7 +65,7 @@ const state = {
       x : undefined,
       y : undefined,
       damage : 0,
-      capacity : 5
+      capacity : shipCapacities.battleship
     }
   ],
   pShips : [
@@ -69,7 +75,7 @@ const state = {
       x : undefined,
       y : undefined,
       damage : 0,
-      capacity : 2
+      capacity : shipCapacities.destroyer
     },
     {
       type : "cruiser",
@@ -77,7 +83,7 @@ const state = {
       x : undefined,
       y : undefined,
       damage : 0,
-      capacity : 3
+      capacity : shipCapacities.cruiser
     },
     {
       type : "battleship",
@@ -85,7 +91,7 @@ const state = {
       x : undefined,
       y : undefined,
       damage : 0,
-      capacity : 5
+      capacity : shipCapacities.battleship
     }
   ],
   pShots: [],
