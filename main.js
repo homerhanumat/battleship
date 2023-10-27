@@ -1,7 +1,30 @@
+/*************************************************
+ * setup
+ *************************************************/
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-const bombRadius = 10;
-const shipSizes = [3, 5, 7];
+const oceanBackground = "#7FFFD4"; // aquamarine
+const shotMissColor = "AntiqueWhite";
+const shotHitColor = "coral";
+const bombRadius = 30;
+const shipSizes = {
+  destroyer: 3,
+  cruiser: 6,
+  battleship: 9
+};
+const showCircleTime = 1000;
+const tempCircleInfo = {
+  x : undefined,
+  y : undefined,
+  r : undefined
+};
+
+canvas.addEventListener("click", processRound);
+const pHistory = document.getElementById("user-shots");
+pHistory.addEventListener("change", drawOcean);
+const cHistory = document.getElementById("computer-shots");
+cHistory.addEventListener("change", drawOcean);
 
 
 // initial game state:
@@ -10,6 +33,7 @@ const state = {
   cShips : [
     {
       type : "destroyer",
+      size: shipSizes.destroyer,
       x : undefined,
       y : undefined,
       damage : 0,
@@ -17,6 +41,7 @@ const state = {
     },
     {
       type : "cruiser",
+      size: shipSizes.cruiser,
       x : undefined,
       y : undefined,
       damage : 0,
@@ -24,6 +49,7 @@ const state = {
     },
     {
       type : "battleship",
+      size: shipSizes.battleship,
       x : undefined,
       y : undefined,
       damage : 0,
@@ -33,6 +59,7 @@ const state = {
   pShips : [
     {
       type : "destroyer",
+      size: shipSizes.destroyer,
       x : undefined,
       y : undefined,
       damage : 0,
@@ -40,6 +67,7 @@ const state = {
     },
     {
       type : "cruiser",
+      size: shipSizes.cruiser,
       x : undefined,
       y : undefined,
       damage : 0,
@@ -47,15 +75,20 @@ const state = {
     },
     {
       type : "battleship",
+      size: shipSizes.battleship,
       x : undefined,
       y : undefined,
       damage : 0,
       capacity : 5
     }
-  ]
+  ],
+  pShots: [],
+  cShots: []
 };
 
-
+/*************************************************
+ * run game
+ *************************************************/
 
 placeShips();
 drawOcean();
@@ -68,6 +101,15 @@ drawOcean();
 function drawCircle(x, y, r) {
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2, true);
+  ctx.stroke();
+}
+
+function drawFilledCircle(x, y, r, hit) {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2, true);
+  let fill = hit ? shotHitColor : shotMissColor;
+  ctx.fillStyle = fill;
+  ctx.fill();
   ctx.stroke();
 }
 
@@ -87,35 +129,48 @@ function dist(x1, y1, x2, y2) {
 function drawOcean() {
   let w = canvas.clientWidth;
   let h = canvas.clientHeight;
+  ctx.clearRect(0, 0, w, h);
   let bh = (h - bombRadius) / 2;
-  // bottom border of computer area:
-  ctx.beginPath();
-  ctx.moveTo(0, bh);
-  ctx.lineTo(w, bh);
-  ctx.stroke();
-  // top border of user area:
-  ctx.beginPath();
-  ctx.moveTo(0, h - bh);
-  ctx.lineTo(w, h - bh);
-  ctx.stroke();
-  // user ships:
-  for (let i = 0; i < state.pShips.length; i++) {
-    let ship = state.pShips[i];
-    let sunk = ship.capacity <= ship.damage;
-    drawShip(ship.x, ship.y, shipSizes[i],sunk);
+  ctx.fillStyle = oceanBackground;
+  // top border of computer area:
+  ctx.fillRect(0, 0, w, bh);
+  // bottom border of user area:
+  ctx.fillRect(0, bh + bombRadius, w, h);
+  // user shots (if requested):
+  if (pHistory.checked) {
+    for (let shot of state.pShots.filter(s => !s.hit)) {
+      drawFilledCircle(shot.x, shot.y, shot.r, false);
+    }
+    for (let shot of state.pShots.filter(s => s.hit)) {
+      drawFilledCircle(shot.x, shot.y, shot.r, true);
+    }
   }
-  for (let i = 0; i < state.cShips.length; i++) {
-    let ship = state.cShips[i];
+  // user shots (if requested):
+  if (cHistory.checked) {
+    for (let shot of state.cShots.filter(s => !s.hit)) {
+      drawFilledCircle(shot.x, shot.y, shot.r, false);
+    }
+    for (let shot of state.cShots.filter(s => s.hit)) {
+      drawFilledCircle(shot.x, shot.y, shot.r, true);
+    }
+  }
+  // user ships:
+  for (let ship of state.pShips) {
+    let sunk = ship.capacity <= ship.damage;
+    drawShip(ship.x, ship.y, ship.size,sunk);
+  }
+  for (let ship of state.cShips) {
     let sunk = ship.capacity <= ship.damage;
     if (sunk) {
-      drawShip(ship.x, ship.y, shipSizes[i],sunk);
+      drawShip(ship.x, ship.y, ship.size,sunk);
     }
   }
 }
 
-function damage(xs, ys, xb, yb, radius) {
+function damage(xs, ys, xb, yb, size, radius) {
   let distance = dist(xs, ys, xb, yb);
-  let damage = dist < radius ? 1 : 0;
+  let close = distance < (radius + size);
+  let damage = close ? 1 : 0;
   return damage;
 }
 
@@ -134,51 +189,85 @@ function placeShips() {
 }
 
 // very simple, for now:
-function computerMove() {
-  let x = Math.random() * canvas.clientWidth;
-  let y = Math.random() * canvas.clientHeight;
-  return [x, y];
+function computerShot() {
+  let w = canvas.clientWidth;
+  let h = canvas.clientHeight;
+  let bh = (h - bombRadius) / 2;
+  let x = Math.random() * w;
+  let y = bh + bombRadius + Math.random() * bh;
+  return {x : x, y : y};
 }
 
-function assessDamages(x, y, player, radius) {
+function assessDamages(x, y, radius) {
   let hit = false;
   let message = "";
   if (state.shooting == "u") {
-    let ships = state.cShips;
+    message += `Your bomb explodes at (${x}, ${y}). `
+    let ships = state.cShips.filter(s => s.damage < s.capacity);
     for (let ship of ships) {
-      let d = damage(xs, ys, x, y, radius);
+      let d = damage(ship.x, ship.y, x, y, ship.size, radius);
       if (d > 0) {
         hit = true;
         ship.damage += d;
-        message += `You hit my {ship.type}. `;
+        message += `You hit my ${ship.type}. `;
       }
       if (ship.damage >= ship.capacity) {
-        message += `You sunk my {ship.type}! `;
-        drawShip(ship.x, ship.y, 5, true);
+        message += `You sunk my ${ship.type}! `;
+        drawShip(ship.x, ship.y, ship.size, true);
       }
     }
     if (!hit) {
-      message = "You did not hit anything."
+      message += "You did not hit anything."
     }
   } else {
-    let ships = state.cShips;
+    message += `My bomb explodes at (${x}, ${y}). `
+    let ships = state.pShips.filter(s => s.damage < s.capacity);
     for (let ship of ships) {
-      let d = damage(xs, ys, x, y, radius);
+      let d = damage(ship.x, ship.y, x, y, ship.size, radius);
       if (d > 0) {
         hit = true;
         ship.damage += d;
-        message += `I hit your {ship.type}. `;
+        message += `I hit your ${ship.type}. `;
         if (ship.damage >= ship.capacity) {
-          message += `I sunk your {ship.type}! `;
-          drawShip(ship.x, ship.y, 5, true);
+          message += `I sunk your ${ship.type}! `;
+          drawShip(ship.x, ship.y, ship.size, true);
         }
       }
     }
     if (!hit) {
-      message = "I did not hit anything."
+      message += "I did not hit anything."
     }
   }
   console.log(message);
+  return hit;
+}
+
+// get location of click on canvas
+// source:  
+// https://stackoverflow.com/questions/17130395/
+// real-mouse-position-in-canvas
+function getMousePos(canvas, evt) {
+  var rect = canvas.getBoundingClientRect();
+  return {
+    x: evt.clientX - rect.left,
+    y: evt.clientY - rect.top
+  };
+}
+
+function processRound(event) {
+  let pos = getMousePos(canvas, event);
+  state.pShots.push({x: pos.x, y: pos.y, r : bombRadius});
+  drawCircle(pos.x, pos.y, bombRadius);
+  let hit = assessDamages(pos.x, pos.y, bombRadius);
+  state.pShots.push({x: pos.x, y: pos.y, r : bombRadius, hit: hit});
+  state.shooting = "c";
+  let cPos = computerShot();
+  state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius});
+  drawCircle(cPos.x, cPos.y, bombRadius);
+  hit = assessDamages(cPos.x, cPos.y, bombRadius);
+  state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius, hit: hit});
+  state.shooting = "u";
+  window.setTimeout(drawOcean, 2000);
 }
 
 
