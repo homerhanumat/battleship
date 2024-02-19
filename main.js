@@ -3,9 +3,10 @@
  *************************************************/
 
 // parameters
-const oceanBackground = "#7FFFD4"; // aquamarine
-const shotMissColor = "AntiqueWhite";
-const shotHitColor = "coral";
+const gameBackground = "white";
+const oceanBackground = "#61cffa";
+const shotMissColor = "white";
+const shotHitColor = "red";
 const bombRadius = 30;
 const shipSizes = {
   destroyer: 3,
@@ -151,7 +152,13 @@ function drawOcean() {
   // top border of computer area:
   ctx.fillRect(0, 0, w, bh);
   // bottom border of user area:
-  ctx.fillRect(0, bh + bombRadius, w, h);
+
+
+  // removed code '+ bombRadius' for smaller dividing rectangle
+  ctx.fillRect(0, bh + 10, w, h);
+
+
+
   // user shots (if requested):
   if (pHistory.checked) {
     for (let shot of state.pShots.filter(s => !s.hit)) {

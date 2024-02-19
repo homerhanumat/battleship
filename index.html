@@ -7,36 +7,63 @@
   <meta name="author" content="">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Courgette&display=swap" rel="stylesheet"/>
   <link href="custom.css" rel="stylesheet">
 </head>
 
 <body>
-
-  <p>Here is the game:</p>
-
-  <canvas id="canvas" width="400" height="400">game intended here</canvas>
-
-  <fieldset>
-    <legend>Show shot history:</legend>
-  
-    <div>
-      <input type="checkbox" id="user-shots" name="user-shots" />
-      <label for="user-shots">Yours</label>
-    </div>
-  
-    <div>
-      <input type="checkbox" id="computer-shots" name="computer-shots" />
-      <label for="computer-shots">Computer's</label>
-    </div>
-  </fieldset>
-
-  <p id="narrative"></p>
-
-  <table id="ship-report"></table>
-
-  <script src="main.js"></script>
-
+  <p>B A T T L E S H I P</p>
+  <div id="mainBox">
+    <canvas id="canvas" width="730" height="730">game intended here</canvas>
+    <div id="secondaryBox">
+        <div id="shotHistory"> 
+          <fieldset >
+            <legend>Shot history:</legend>
+              <input type="checkbox" id="user-shots" name="user-shots" checked/>
+                <label for="user-shots">Enable your shot history</label>
+                <br>
+                 <input type="checkbox" id="computer-shots" name="computer-shots" checked/>
+                <label for="computer-shots">Enable opponent's shot history</label>
+          </fieldset>
+        </div>
+        <div id="weaponSelection">
+          <div id="powerCounter">
+            <div id="weaponSelection1">
+              Firepower:
+            </div> 
+            <div id="weaponSelection2">
+              1234
+            </div>
+          </div>
+          <br>
+          Power<output id = "powerOutputValueSlider1">30</output>
+          <input type="range" min="0" max="100" value="30" step="5" class="slider" id="myRange1" oninput="powerOutputValueSlider1.value = this.value"><br>
+          Size<output id = "powerOutputValueSlider2">30</output>
+          <input type="range" min="0" max="100" value="30" step="5" class="slider" id="myRange2" oninput="powerOutputValueSlider2.value = this.value"><br>
+          Extras<output id = "powerOutputValueSlider3">0</output>
+          <input type="range" min="0" max="100" value="0" step="5" class="slider" id="myRange3" oninput="powerOutputValueSlider3.value = this.value"><br>
+          <output id = "powerOutputValueSlider4">0</output>
+          <input type="range" min="0" max="100" value="0" step="5" class="slider" id="myRange4" oninput="powerOutputValueSlider4.value = this.value"><br>
+          <output id = "powerOutputValueSlider5">0</output>
+          <input type="range" min="0" max="100" value="0" step="5" class="slider" id="myRange5" oninput="powerOutputValueSlider5.value = this.value"><br>
+          <output id = "powerOutputValueSlider6">0</output>
+          <input type="range" min="0" max="100" value="0" step="5" class="slider" id="myRange6" oninput="powerOutputValueSlider6.value = this.value"><br>
+          <div id="shotCost">
+            <div id="shotCost1">
+              Cost:
+            </div>
+            <div id="shotCost2">
+              1234
+            </div>
+          </div>
+        </div>
+      <div id="textBoxThing">
+        <p2 id="narrative"></p2>
+        <table id="ship-report"></table>
+        <script src="main.js"></script>
+      </div>
+    </div> 
+  </div>
 </body>
 
 </html>
