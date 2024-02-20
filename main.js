@@ -27,7 +27,7 @@ const tempCircleInfo = {
 // html elements
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-canvas.addEventListener("click", processRound);
+canvas.addEventListener("dblclick", processRound);
 
 const pHistory = document.getElementById("user-shots");
 pHistory.addEventListener("change", drawOcean);
