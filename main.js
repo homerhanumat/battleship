@@ -2,6 +2,8 @@
  * setup
  *************************************************/
 
+// this is a silly comment
+
 // parameters
 const oceanBackground = "#7FFFD4"; // aquamarine
 const shotMissColor = "AntiqueWhite";
