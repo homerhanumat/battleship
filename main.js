@@ -6,7 +6,7 @@
 const oceanBackground = "#7FFFD4"; // aquamarine
 const shotMissColor = "AntiqueWhite";
 const shotHitColor = "coral";
-const bombRadius = 30;
+let bombRadius = 10;
 const shipSizes = {
   destroyer: 3,
   cruiser: 6,
@@ -27,7 +27,8 @@ const tempCircleInfo = {
 // html elements
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-canvas.addEventListener("dblclick", processRound);
+canvas.addEventListener("click", processRound);
+bombRadius = document.addEventListener(onkeydown, bombRadiusAdjust);
 
 const pHistory = document.getElementById("user-shots");
 pHistory.addEventListener("change", drawOcean);
@@ -316,7 +317,19 @@ function allShipsSunk(player) {
   return sunkCount == ships.length;
 }
 
+// custom bomb radius
+function bombRadiusAdjust(Event) {
+  if (Event.keyCode === 171) {
+    newBombRadius = bombRadius + 1;
+  };
+  if (Event.keyCode === 173) {
+    newBombRadius = bombRadius - 1;
+  };
+  return newBombRadius;
+};
+
 function processRound(event) {
+  console.log(event.type);
   checkForWinner();
   if (!state.winner) {
     let pos = getMousePos(canvas, event);
