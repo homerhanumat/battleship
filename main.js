@@ -1,6 +1,7 @@
 /*************************************************
  * setup
  *************************************************/
+//hello
 
 // parameters
 const oceanBackground = "#7FFFD4"; // aquamarine
@@ -225,7 +226,7 @@ function assessDamages(x, y, radius) {
       if (d > 0) {
         hit = true;
         ship.damage += d;
-        message += `You hit my ${ship.type}. `;
+        message += `You hit my ${ship.type}, so you can go again!`;
       }
       if (ship.damage >= ship.capacity) {
         message += `You sunk my ${ship.type}! `;
@@ -235,7 +236,8 @@ function assessDamages(x, y, radius) {
     if (!hit) {
       message += "You did not hit anything."
     }
-  } else {
+  } 
+  else {
     message += `My bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `
     let ships = state.pShips.filter(s => s.damage < s.capacity);
     for (let ship of ships) {
@@ -243,7 +245,7 @@ function assessDamages(x, y, radius) {
       if (d > 0) {
         hit = true;
         ship.damage += d;
-        message += `I hit your ${ship.type}. `;
+        message += `I hit your ${ship.type}, so I can go again.`;
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
           drawShip(ship.x, ship.y, ship.size, true);
