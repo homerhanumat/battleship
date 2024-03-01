@@ -133,7 +133,7 @@ function drawFilledCircle(x, y, r, hit) {
 function drawShip(x, y, size, sunk) {
   ctx.beginPath();
   ctx.arc(x, y, size, 0, Math.PI * 2, true);
-  ctx.fillStyle = sunk ? "red" : "blue";
+  ctx.fillStyle = sunk ? "#c90d00" : "blue";
   ctx.fill();
   ctx.fillStyle = "black";
 }
