@@ -264,8 +264,12 @@ function populateShipReport() {
   contents += "<tbody>";
   contents += 
     `
-    <tr><th>Ship</th><th>Capacity</th><th>Damage (You)
-    </th><th>Damage (Computer)</th></tr>
+    <tr>
+    <th>Ship</th>
+    <th>Capacity</th>
+    <th>Damage (You)</th>
+    <th>Damage (Computer)</th>
+    </tr>
     `
   let l = state.cShips.length;
   for (let i = 0; i < l; i++) {
