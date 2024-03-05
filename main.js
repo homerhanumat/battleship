@@ -39,9 +39,21 @@ cHistory.addEventListener("change", drawOcean);
 const shipReport = document.getElementById("ship-report");
 const narrative = document.getElementById("narrative");
 
-const bombRadiusSlider = document.getElementById("shotSize");
+const bombRadiusSlider = document.getElementById("myRange2");
 bombRadiusSlider.addEventListener("input", function() {
-  bombRadius = this.value;
+  bombRadius = parseFloat(this.value);
+  firePower = 2.35-Math.log(bombRadius/2);
+  bombDamageSlider.value = firePower;
+  bombRadiusSlider.value = bombRadius;
+  
+});
+
+const bombDamageSlider = document.getElementById("myRange1");
+bombDamageSlider.addEventListener("input", function() {
+  firePower = parseFloat(this.value);
+  bombRadius = Math.exp((2.35-firePower)*2);
+  bombRadiusSlider.value = bombRadius;
+  bombDamageSlider.value = firePower;
 });
 
 // game state:
@@ -192,7 +204,7 @@ function drawOcean() {
 function damage(xs, ys, xb, yb, size, radius) {
   let distance = dist(xs, ys, xb, yb);
   let close = distance < (radius + size);
-  let damage = close ? 1 : 0;
+  let damage = close ? firePower : 0;
   return damage;
 }
 
