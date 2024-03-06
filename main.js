@@ -1,7 +1,6 @@
 /*************************************************
  * setup
  *************************************************/
-//hello
 
 // parameters
 const oceanBackground = "#7FFFD4"; // aquamarine
@@ -30,6 +29,8 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 canvas.addEventListener("click", processRound);
 
+//canvas.addEventListener("contextmenu", reDraw);
+
 const pHistory = document.getElementById("user-shots");
 pHistory.addEventListener("change", drawOcean);
 
@@ -38,6 +39,15 @@ cHistory.addEventListener("change", drawOcean);
 
 const shipReport = document.getElementById("ship-report");
 const narrative = document.getElementById("narrative");
+
+canvas.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+}); //prevents popup context menu when right clicking on canvas
+canvas.addEventListener("contextmenu", refresh, false) //when right click on canvas, refresh page
+
+function refresh() {
+  history.go(0);
+}
 
 // game state:
 const state = {
@@ -109,7 +119,8 @@ populateNarrative(
 );
 placeShips();
 drawOcean();
-
+document.getElementById("user-shots").checked = true; //check user shot history box
+document.getElementById("computer-shots").checked = true; //check computer shot history box
 
 /***********************************
  * utitlity functions
@@ -137,6 +148,7 @@ function drawShip(x, y, size, sunk) {
   ctx.fill();
   ctx.fillStyle = "black";
 }
+
 function dist(x1, y1, x2, y2) {
   let sX = x1 - x2;
   let sY = y1 - y2;
@@ -226,10 +238,10 @@ function assessDamages(x, y, radius) {
       if (d > 0) {
         hit = true;
         ship.damage += d;
-        message += `You hit my ${ship.type}, so you can go again!`;
+        message += `You hit my ${ship.type}!`;
       }
       if (ship.damage >= ship.capacity) {
-        message += `You sunk my ${ship.type}! `;
+        message += `You sunk my ${ship.type}!`;
         drawShip(ship.x, ship.y, ship.size, true);
       }
     }
@@ -245,7 +257,7 @@ function assessDamages(x, y, radius) {
       if (d > 0) {
         hit = true;
         ship.damage += d;
-        message += `I hit your ${ship.type}, so I can go again.`;
+        message += `I hit your ${ship.type}!`;
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
           drawShip(ship.x, ship.y, ship.size, true);
