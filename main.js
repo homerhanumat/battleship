@@ -214,14 +214,14 @@ function computerShot() {
   const w = battleCanvas.clientWidth; // finds width of field 
   const h = battleCanvas.clientHeight/2; // finds height of cpu field by finding total height divided by 2
   let bh = (h - bombRadius) / 2; 
-  if (hit = TRUE) {
+  if (s => s.hit) {
     x = lastX;
     y = lastY;
   } else {
    x = Math.random() * w;
    y = bh + bombRadius + Math.random() * bh;
    lastX = x;
-   lastY = y
+   lastY = y;
   }
   return {x : x, y : y};
 }
