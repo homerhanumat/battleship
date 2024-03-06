@@ -204,11 +204,12 @@ function placeShips() {
   };
 }
 
-// very simple, for now:
+// very simple, for now:   ***************************************************************************************
 function computerShot() {
-  let w = canvas.clientWidth;
-  let h = canvas.clientHeight;
-  let bh = (h - bombRadius) / 2;
+  const battleCanvas = canvas.getBoundingClientRect(); // gets the bounds of the field
+  const w = battleCanvas.clientWidth; // finds width of field 
+  const h = battleCanvas.clientHeight/2; // finds height of field
+  let bh = (h - bombRadius) / 2; 
   let x = Math.random() * w;
   let y = bh + bombRadius + Math.random() * bh;
   return {x : x, y : y};
