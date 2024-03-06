@@ -225,6 +225,8 @@ function computerShot() {
 
 function assessDamages(x, y, radius) {
   let hit = false;
+  let uHit = false;
+  let cHit = false;
   let message = "";
   if (state.shooting == "u") {
     message += `Your bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `
@@ -232,6 +234,7 @@ function assessDamages(x, y, radius) {
     for (let ship of ships) {
       let d = damage(ship.x, ship.y, x, y, ship.size, radius);
       if (d > 0) {
+        uHit = true;
         hit = true;
         ship.damage += d;
         message += `You hit my ${ship.type}. `;
@@ -241,7 +244,7 @@ function assessDamages(x, y, radius) {
         drawShip(ship.x, ship.y, ship.size, true);
       }
     }
-    if (!hit) {
+    if (!uHit) {
       message += "You did not hit anything."
     }
   } else {
@@ -251,6 +254,7 @@ function assessDamages(x, y, radius) {
       let d = damage(ship.x, ship.y, x, y, ship.size, radius);
       if (d > 0) {
         hit = true;
+        cHit = true;
         ship.damage += d;
         message += `I hit your ${ship.type}. `;
         if (ship.damage >= ship.capacity) {
@@ -259,12 +263,16 @@ function assessDamages(x, y, radius) {
         }
       }
     }
-    if (!hit) {
+    if (!cHit) {
       message += "I did not hit anything."
     }
   }
   console.log(message);
-  return {hit: hit, message : message};
+  if (uHit == true || uHit == false) {
+    return {hit: uHit, message : message};
+  } else {
+  return {hit: cHit, message : message};
+  }
 }
 
 //update ship report:
