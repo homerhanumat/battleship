@@ -206,16 +206,22 @@ function placeShips() {
 
 // very simple, for now:   ***************************************************************************************
 function computerShot() {
+  let x = 0;
+  let y = 0;
+  let lastX = 0;
+  let lastY = 0;
   const battleCanvas = canvas.getBoundingClientRect(); // gets the bounds of the field
   const w = battleCanvas.clientWidth; // finds width of field 
   const h = battleCanvas.clientHeight/2; // finds height of cpu field by finding total height divided by 2
   let bh = (h - bombRadius) / 2; 
   if (hit = TRUE) {
-    let x = x;
-    let y = y;
+    x = lastX;
+    y = lastY;
   } else {
-  let x = Math.random() * w;
-  let y = bh + bombRadius + Math.random() * bh;
+   x = Math.random() * w;
+   y = bh + bombRadius + Math.random() * bh;
+   lastX = x;
+   lastY = y
   }
   return {x : x, y : y};
 }
