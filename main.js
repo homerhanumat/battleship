@@ -214,7 +214,7 @@ function computerShot() {
   const w = battleCanvas.clientWidth; // finds width of field 
   const h = battleCanvas.clientHeight/2; // finds height of cpu field by finding total height divided by 2
   let bh = (h - bombRadius) / 2; 
-  if (s => s.hit) {
+  if (assessDamages.hit = TRUE) {
     x = lastX;
     y = lastY;
   } else {
