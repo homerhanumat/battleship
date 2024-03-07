@@ -2,24 +2,24 @@
 body {
   justify-content: center;
   align-items: center;
-  border-radius: 5px;
+  border-radius: 10px;
   background-image: url(https://images.unsplash.com/photo-1530053969600-caed2596d242?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);
   background-size: cover;
-  background-position: center center;
+  position: relative;
 }
 .item1 { 
   grid-area: Game;
-  border-radius: 5px;
+  border-radius: 10px;
 }
 
 .item2 { 
   grid-area: Menu;
-  border-radius: 5px;
+  border-radius: 10px;
 }
 
 .item3 { 
   grid-area: Text; 
-  border-radius: 5px;
+  border-radius: 10px;
 }
 
 .item4 { 
@@ -28,10 +28,9 @@ body {
   grid-template-areas:
   'shotPower shotDisplay'
   'shotPower shotText';
-  gap: 1rem;
   grid-template-columns: 15rem 30rem;
   justify-content: center;
-  border-radius: 5px;
+  border-radius: 10px;
   grid-template-rows: 25rem auto;
 }
 
@@ -92,16 +91,17 @@ body {
   'shotDisplay2';
   grid-template-columns: 28rem;
   grid-template-rows: 2rem;
-  border-radius: 5px;
+  border-radius: 10px;
   font-size: large;
   margin: 1rem;
 }
 
 .shotDisplay1 {
-  border-radius: 5px;
+  border-radius: 10px;
+  font-size: 2rem;
 }
 .shotDisplay2 {
-  border-radius: 5px;
+  border-radius: 10px;
 }
 
 .shotMenu3{
@@ -115,8 +115,8 @@ body {
   'narrative'
   'shipReport';
   grid-template-columns: 27rem;
-  grid-template-rows: 7rem auto;
-  border-radius: 5px;
+  grid-template-rows: 3.5rem auto;
+  border-radius: 10px;
   font-size: medium;
   margin: 1rem;
   row-gap: 1rem;
@@ -125,11 +125,11 @@ body {
   grid-area: narrative;
   text-align: left;
   font-size: medium;
-  border-radius: 5px;
+  border-radius: 10px;
 }
 .shipReport {
   grid-area: shipReport;
-  border-radius: 5px;
+  border-radius: 10px;
 }
 .vslider {
   -webkit-appearance: none;
@@ -148,7 +148,7 @@ body {
   right: 0px;
   transform:rotate(270deg);
   margin: auto;
-  border-radius: 5px;
+  border-radius: 10px;
 }
 .vslider:hover {
   opacity: 1;
@@ -166,7 +166,11 @@ body {
   height: 4rem;
   cursor: pointer;
 }
-
+#mainbox{
+  position: absolute;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0);
+}
 .grid-container {
   display: inline-grid;
   grid-template-areas:
@@ -177,8 +181,12 @@ body {
   padding: 1rem;
   grid-template-columns: 25rem 25rem 52.5rem;
   grid-template-rows: 3rem auto 5rem;
-  position: relative;
-  border-radius: 5px;
+  position: absolute;
+  border-radius: 10px;
+  width: 104rem;
+  margin-top: 0px;
+  padding-top: .75rem;
+  padding-bottom: .75rem;
 }
 .grid-container > div {
   background-color: rgba(255, 255, 255, 0.8);
@@ -196,7 +204,7 @@ body {
   font-size: medium;
   background-color: rgb(255, 255, 255, 0.8);
   text-align: left;
-  border-radius: 5px;
+  border-radius: 10px;
   position: absolute;
   left: 0px;
   right: 0px;
@@ -210,6 +218,35 @@ body {
 }
 
 
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+td, th {
+  border: 1px solid black;
+  text-align: left;
+  padding: 8px;
+}
+tr:nth-child(even) {
+  background-color: #dddddd
+}
 
 
 
+
+
+#ball {
+  width: 60px;
+  height: 60px;
+  background: none;
+  border: 3px solid rgb(255, 255, 255);
+  border-radius: 50%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -40px 0 0 -40px;
+  pointer-events: none;
+}

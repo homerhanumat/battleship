@@ -2,21 +2,22 @@
  * setup
  *************************************************/
 
+
+
 // parameters
 const gameBackground = "white";
 const oceanBackground = "#61cffa";
 const shotMissColor = "white";
 const shotHitColor = "red";
-const bombRadius = 30;
 const shipSizes = {
-  destroyer: 3,
-  cruiser: 6,
-  battleship: 9
+  Destroyer: 3,
+  Cruiser: 6,
+  Battleship: 9
 };
 const shipCapacities = {
-  destroyer: 2,
-  cruiser: 3,
-  battleship: 5
+  Destroyer: 2,
+  Cruiser: 3,
+  Battleship: 5
 };
 const showCircleTime = 1000;
 const tempCircleInfo = {
@@ -39,60 +40,89 @@ cHistory.addEventListener("change", drawOcean);
 const shipReport = document.getElementById("ship-report");
 const narrative = document.getElementById("narrative");
 
+
+const bombRadiusSlider = document.getElementById("shotSize");
+const bombDamageSlider = document.getElementById("shotPower");
+
+
+
+var bombRadius = 30;
+var firePower = 3.5;
+
+bombRadiusSlider.addEventListener("input", function() {
+  bombRadius = parseFloat(this.value);
+  firePower = (10-(bombRadius/10))/2;
+  bombDamageSlider.value = firePower;
+  bombRadiusSlider.value = bombRadius;
+  document.getElementById("shotPowerDisplay").innerText = firePower;
+  
+});
+bombDamageSlider.addEventListener("input", function() {
+  firePower = parseFloat(this.value);
+  bombRadius = (100-(firePower*20));
+  bombRadiusSlider.value = bombRadius;
+  bombDamageSlider.value = firePower;
+  document.getElementById("shotSizeDisplay").innerText = bombRadius;
+});
+
+
+
+
+
 // game state:
 const state = {
   shooting : "u",
   winner : undefined,
   cShips : [
     {
-      type : "destroyer",
-      size: shipSizes.destroyer,
+      type : "Destroyer",
+      size: shipSizes.Destroyer,
       x : undefined,
       y : undefined,
       damage : 0,
-      capacity : shipCapacities.destroyer
+      capacity : shipCapacities.Destroyer
     },
     {
-      type : "cruiser",
-      size: shipSizes.cruiser,
+      type : "Cruiser",
+      size: shipSizes.Cruiser,
       x : undefined,
       y : undefined,
       damage : 0,
-      capacity : shipCapacities.cruiser
+      capacity : shipCapacities.Cruiser
     },
     {
-      type : "battleship",
-      size: shipSizes.battleship,
+      type : "Battleship",
+      size: shipSizes.Battleship,
       x : undefined,
       y : undefined,
       damage : 0,
-      capacity : shipCapacities.battleship
+      capacity : shipCapacities.Battleship
     }
   ],
   pShips : [
     {
-      type : "destroyer",
-      size: shipSizes.destroyer,
+      type : "Destroyer",
+      size: shipSizes.Destroyer,
       x : undefined,
       y : undefined,
       damage : 0,
-      capacity : shipCapacities.destroyer
+      capacity : shipCapacities.Destroyer
     },
     {
-      type : "cruiser",
-      size: shipSizes.cruiser,
+      type : "Cruiser",
+      size: shipSizes.Cruiser,
       x : undefined,
       y : undefined,
       damage : 0,
-      capacity : shipCapacities.cruiser
+      capacity : shipCapacities.Cruiser
     },
     {
-      type : "battleship",
-      size: shipSizes.battleship,
+      type : "Battleship",
+      size: shipSizes.Battleship,
       x : undefined,
       y : undefined,
       damage : 0,
-      capacity : shipCapacities.battleship
+      capacity : shipCapacities.Battleship
     }
   ],
   pShots: [],
@@ -147,7 +177,7 @@ function drawOcean() {
   let w = canvas.clientWidth;
   let h = canvas.clientHeight;
   ctx.clearRect(0, 0, w, h);
-  let bh = (h - bombRadius) / 2;
+  let bh = (h - 30) / 2;
   ctx.fillStyle = oceanBackground;
   // top border of computer area:
   ctx.fillRect(0, 0, w, bh);
@@ -188,6 +218,7 @@ function drawOcean() {
       drawShip(ship.x, ship.y, ship.size,sunk);
     }
   }
+  populateShipReport()
 }
 
 function damage(xs, ys, xb, yb, size, radius) {
@@ -200,14 +231,14 @@ function damage(xs, ys, xb, yb, size, radius) {
 function placeShips() {
   let w = canvas.clientWidth;
   let h = canvas.clientHeight;
-  let bh = (h - bombRadius) / 2;
+  let bh = (h - 30) / 2;
   for (let ship of state.cShips) {
     ship.x = Math.random() * w;
     ship.y = Math.random() * bh;
   };
   for (let ship of state.pShips) {
     ship.x = Math.random() * w;
-    ship.y = h/2 + bombRadius + Math.random() * bh;
+    ship.y = h/2 + 30 + Math.random() * bh;
   };
 }
 
@@ -359,4 +390,45 @@ function processRound(event) {
   }
 }
 
+
+// Ball Div follows mouse
+
+var $ = document.querySelector.bind(document);
+var $on = document.addEventListener.bind(document);
+
+var xmouse, ymouse;
+$on('mousemove', function (e) {
+     xmouse = e.clientX || e.pageX;
+     ymouse = e.clientY || e.pageY;
+});
+
+var ball = $('#ball');
+var x = void 0,
+     y = void 0,
+     dx = void 0,
+     dy = void 0,
+     tx = 0,
+     ty = 0,
+     key = -1;
+
+var followMouse = function followMouse() {
+     key = requestAnimationFrame(followMouse);
+
+     if(!x || !y) {
+          x = xmouse;
+          y = ymouse;
+     } else {
+          dx = (xmouse - x) * .4;
+          dy = (ymouse - y) * .4;
+          if(Math.abs(dx) + Math.abs(dy) < 0.1) {
+               x = xmouse;
+               y = ymouse;
+          } else {
+               x += dx;
+               y += dy;
+          }
+     }
+     ball.style.left = x + 'px';
+     ball.style.top = y + 'px';
+};
 
