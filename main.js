@@ -1,7 +1,7 @@
 /*************************************************
  * setup
  *************************************************/
-
+//tooltip
 // parameters
 const oceanBackground = "#7FFFD4"; // aquamarine
 const shotMissColor = "AntiqueWhite";
