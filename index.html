@@ -20,7 +20,7 @@
   <body>
   <div class="example_div"></div>
   </body>
-  
+
   <script type="text/javascript">
     var tooltip = d3.select("body")
       .append("div")
@@ -44,7 +44,7 @@
       .on("mouseover", function(){return tooltip.style("visibility", "visible");}) //make tooltip visible when circle is hovered over
       .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");}) //make tooltip follow mouse
       .on("mouseout", function(){return tooltip.style("visibility", "hidden");}); //hide tooltip when mouse leaves circle
-    tooltip.text("your tooltip text");
+    tooltip.text("your tooltip text"); //what the tooltip says
   </script>
 </html>
 
