@@ -2,43 +2,50 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-  <title></title>
-  <meta name="author" content="">
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <link href="custom.css" rel="stylesheet">
+ 
 </head>
 
 <body>
+  <!--"r" is radius, "cx" is the x-coordinate center of circle (default 0),
+  "cy" is the y-coordinate center of circle (default 0)-->
 
-  <p>Here is the game:</p>
-
-  <canvas id="canvas" width="400" height="400">game intended here</canvas>
-
-  <fieldset>
-    <legend>Show shot history:</legend>
+  <svg width="100" height="100">
+    <circle cx="50" cy="50" r="30" fill="blue">
+    <title>Your tooltip text</title>title>
+  </svg>
   
-    <div>
-      <input type="checkbox" id="user-shots" name="user-shots" />
-      <label for="user-shots">Yours</label>
-    </div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <body>
+  <div class="example_div"></div>
+  </body>
   
-    <div>
-      <input type="checkbox" id="computer-shots" name="computer-shots" />
-      <label for="computer-shots">Computer's</label>
-    </div>
-  </fieldset>
-
-  <p id="narrative"></p>
-
-  <table id="ship-report"></table>
-
-  <script src="main.js"></script>
-
-</body>
-
+  <script type="text/javascript">
+    var tooltip = d3.select("body")
+      .append("div")
+      .style("position", "absolute")
+      .style("z-index", "10")
+      .style("visibility", "hidden")
+  
+    var sampleSVG = d3.select(".example_div")
+      .append("svg:svg")
+      .attr("class", "sample")
+      .attr("width", 300) //width of container with circle
+      .attr("height", 300); //height of container with circle
+  
+    d3.select(".example_div svg")
+      .append("svg:circle") //attach circle from d3js library
+      .attr("stroke", "black") //border color
+      .attr("fill", "lightgrey") //color of inside of circle
+      .attr("r", 50) //radius
+      .attr("cx", 52) //x-coordinate of center of circle
+      .attr("cy", 52) //y-coordinate of center of circle
+      .on("mouseover", function(){return tooltip.style("visibility", "visible");}) //make tooltip visible when circle is hovered over
+      .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");}) //make tooltip follow mouse
+      .on("mouseout", function(){return tooltip.style("visibility", "hidden");}); //hide tooltip when mouse leaves circle
+    tooltip.text("your tooltip text");
+  </script>
 </html>
 
 
