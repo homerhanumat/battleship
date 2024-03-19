@@ -45,7 +45,6 @@ bombRadiusSlider.addEventListener("input", function() {
   firePower = 2.35-Math.log(bombRadius/2);
   bombDamageSlider.value = firePower;
   bombRadiusSlider.value = bombRadius;
-  
 });
 
 const bombDamageSlider = document.getElementById("myRange1");
