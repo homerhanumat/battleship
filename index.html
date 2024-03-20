@@ -62,7 +62,8 @@
           position: absolute; /*positions table fully within its containing element, allows cursor coordinates to be tracked when over circle (see code below)*/
       }
     </style>
-    <table id="fruitTable" style="width:30%">
+
+    <table id="fruitTable" style="display: none;" style="width:30%">
       <tr> <!--table row-->
         <th>Apples</th> <!--table headings-->
         <th>Oranges</th>
@@ -84,7 +85,7 @@
     <script>
       const fruitTable = document.getElementById("fruitTable");
       const redCircle = document.getElementById("redCircle");
-      hideTable();
+      let isTableVisible = false;
     
       redCircle.addEventListener("mousemove", showTable); //when cursor hovers over circle, show table
       redCircle.addEventListener("mouseover", showTable); //when cursor moves over circle (without stopping), show table
@@ -93,13 +94,20 @@
       function showTable(event) {
         const mouseX = event.pageX;
         const mouseY = event.pageY;
-        fruitTable.style.left = mouseX + "px"; //update table position from the left based on the cursor coordinates
-        fruitTable.style.top = mouseY + "px"; //update table position from the top based on the cursor coordinates
-        fruitTable.style.display = ""; //make table visible
+        const offsetX = 15;
+        const offsetY = 15;
+        fruitTable.style.left = mouseX - offsetX + "px"; //adjusts x position to center table on cursor
+        fruitTable.style.top = mouseY - offsetY + "px"; //adjusts y position to center table on cursor
+
+        if(!isTableVisible) {
+          fruitTable.style.display = "";
+          isTableVisible = true;
+        }
       }
     
       function hideTable() {
         fruitTable.style.display = "none"; //make table invisible
+        isTableVisible = false;
       }
     </script>
 <!--*****************************************************************************-->
