@@ -168,6 +168,7 @@ function drawOcean() {
     }
     for (let shot of state.cShots.filter(s => s.hit)) {
       drawFilledCircle(shot.x, shot.y, shot.r, true);
+
     }
   }
   // user ships:
@@ -210,7 +211,10 @@ function computerShot() {
   const w = battleCanvas.clientWidth; // finds width of field 
   const h = battleCanvas.clientHeight/2; // finds height of cpu field by finding total height divided by 2
   let bh = (h - bombRadius) / 2;
-  if (cHit) {
+  // hit detection to target an area with a previous hit currently non functional
+  if (cHit) { 
+    let x = x;
+    let y =y;
     return {x : x, y : y};
   } else {
     let x = Math.random() * w;
@@ -218,9 +222,26 @@ function computerShot() {
     return {x : x, y : y};
   }
 
+ /*
+ // function to create grid spaces for computer 
+  function computerGrid(w) {
+    let pieceWidth = w/bombRadius
+    let arrGrid = [];
+    let gridPlaces = 0;
+    for (let i=0; i < bombRadius; i++) {
+      arrGrid[i] = gridPlaces;
+      gridPlaces += pieceWidth
+    }
+    return arrGrid;
+  }
+ */
+
   // To-Do List
   // improve hit detection for cpu to actually sink ships
   // improve on shot generation make it less random
+
+  // Completed
+  // ensure the computer can only attack in its sector
 }
 
 function assessDamages(x, y, radius) {
@@ -341,6 +362,7 @@ function processRound(event) {
     drawCircle(pos.x, pos.y, bombRadius);
     let userResults = assessDamages(pos.x, pos.y, bombRadius);
     let hit = userResults.hit;
+    uHit = userResults.uHit
     let message = userResults.message;
     state.pShots.push({x: pos.x, y: pos.y, r : bombRadius, hit: hit});
     state.shooting = "c";
@@ -351,6 +373,7 @@ function processRound(event) {
       drawCircle(cPos.x, cPos.y, bombRadius);
       let computerResults = assessDamages(cPos.x, cPos.y, bombRadius);
       hit = computerResults.hit;
+      cHit = computerResults.cHit
       message += `<br>${computerResults.message}`;
       state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius, hit: hit});
       state.shooting = "u";
