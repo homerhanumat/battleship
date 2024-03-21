@@ -1,0 +1,247 @@
+
+body {
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  background-image: url(https://images.unsplash.com/photo-1530053969600-caed2596d242?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);
+  background-size: cover;
+  position: relative;
+}
+.item1 { 
+  grid-area: Game;
+  border-radius: 10px;
+}
+
+.item2 { 
+  grid-area: Menu;
+  border-radius: 10px;
+}
+
+.item3 { 
+  grid-area: Text; 
+  border-radius: 10px;
+}
+
+.item4 { 
+  grid-area: ShotMenu; 
+  display: inline-grid;
+  grid-template-areas:
+  'shotPower shotDisplay'
+  'shotPower shotText';
+  grid-template-columns: 15rem 30rem;
+  justify-content: center;
+  border-radius: 10px;
+  grid-template-rows: 25rem auto;
+}
+
+.sliderHeader1{
+  grid-area: shotH1;
+}
+.sliderHeader2{
+  grid-area: shotH2;
+}
+.sliderDIV1 {
+  grid-area: powerSlider;
+  position: relative;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+.sliderDIV2 {
+  grid-area: sizeSlider;
+  position: relative;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
+.sliderOutput1 {
+  grid-area: output1;
+}
+.sliderOutput2 {
+  grid-area: output2;
+}
+
+.shotMenu1 { 
+  grid-area: shotPower;
+  display: inline-grid;
+  grid-template-areas:
+  'shotH1 shotH2'
+  'powerSlider sizeSlider'
+  'output1 output2';
+  margin: 10px;
+  grid-template-rows:  2rem 30rem 3rem;
+  grid-template-columns: 5rem 5rem;
+  column-gap: 1rem;
+  row-gap: 10px;
+  justify-content: center;
+  position: relative;
+  border: rgba(0,0,0) solid;
+}
+.shotMenu2 {
+  grid-area: shotDisplay;
+  margin: 10px;
+  gap: .5rem;
+  justify-content: center;
+  border: rgba(0,0,0) solid;
+  display: grid;
+  grid-template-areas: 
+  'shotDisplay'
+  'shotDisplay2';
+  grid-template-columns: 28rem;
+  grid-template-rows: 2rem;
+  border-radius: 10px;
+  font-size: large;
+  margin: 1rem;
+}
+
+.shotDisplay1 {
+  border-radius: 10px;
+  font-size: 2rem;
+}
+.shotDisplay2 {
+  border-radius: 10px;
+}
+
+.shotMenu3{
+  grid-area: shotText;
+  justify-content: center;
+  border: rgba(0,0,0) solid;
+  font-size:medium;
+  text-align: left;
+  display: grid;
+  grid-template-areas:
+  'narrative'
+  'shipReport';
+  grid-template-columns: 27rem;
+  grid-template-rows: 3.5rem auto;
+  border-radius: 10px;
+  font-size: medium;
+  margin: 1rem;
+  row-gap: 1rem;
+}
+.narrativeGrid {
+  grid-area: narrative;
+  text-align: left;
+  font-size: medium;
+  border-radius: 10px;
+}
+.shipReport {
+  grid-area: shipReport;
+  border-radius: 10px;
+}
+.vslider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 30rem;
+  height: 1.5rem;
+  background: #a09f9f;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: -12.5rem;
+  right: 0px;
+  transform:rotate(270deg);
+  margin: auto;
+  border-radius: 10px;
+}
+.vslider:hover {
+  opacity: 1;
+}
+.vslider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 4rem;
+  background: rgb(58, 58, 58);
+  cursor: pointer;
+}
+.vslider::-moz-range-thumb {
+  width: 25px;
+  height: 4rem;
+  cursor: pointer;
+}
+#mainbox{
+  position: absolute;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0);
+}
+.grid-container {
+  display: inline-grid;
+  grid-template-areas:
+  'Text Text Text'
+  'Game Game ShotMenu'
+  'Game Game Menu';
+  gap: .5rem;
+  padding: 1rem;
+  grid-template-columns: 25rem 25rem 52.5rem;
+  grid-template-rows: 3rem auto 5rem;
+  position: absolute;
+  border-radius: 10px;
+  width: 104rem;
+  margin-top: 0px;
+  padding-top: .75rem;
+  padding-bottom: .75rem;
+}
+.grid-container > div {
+  background-color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  padding: 20px 0;
+  font-size: 30px;
+}
+#title {
+  font-family:'Courier New', Courier, monospace;
+  background-color: rgb(255, 255, 255, 0.8);
+  padding: .5rem 0%;
+}
+#shotHistory {
+  font-family:'Courier New', Courier, monospace;
+  font-size: medium;
+  background-color: rgb(255, 255, 255, 0.8);
+  text-align: left;
+  border-radius: 10px;
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  top: 0px;
+  justify-content: center;
+  padding-top: 5px;
+}
+#fieldset {
+  border: 0;
+}
+
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+td, th {
+  border: 1px solid black;
+  text-align: left;
+  padding: 8px;
+}
+tr:nth-child(even) {
+  background-color: #dddddd
+}
+
+#ball {
+  width: 60px;
+  height: 60px;
+  background: none;
+  border: 1px solid rgb(255, 255, 255);
+  position: absolute;
+  border-radius: 0%;
+  pointer-events: none;
+  margin-top: -30px;
+  margin-left: -30px;
+}

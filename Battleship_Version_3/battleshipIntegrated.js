@@ -54,7 +54,14 @@ bombRadiusSlider.addEventListener("input", function() {
   firePower = Math.round((10-(bombRadius/10))*5)/10;
   bombDamageSlider.value = firePower;
   bombRadiusSlider.value = bombRadius;
-  document.getElementById("shotPowerDisplay").innerText = firePower;
+
+ var ballElement = document.getElementById('ball');
+ ballElement.style.height = 2 * bombRadius + 'px';
+ ballElement.style.width = 2 * bombRadius + 'px';
+ ballElement.style.marginTop = -bombRadius + 'px';
+ ballElement.style.marginLeft = -bombRadius + 'px';
+ 
+ document.getElementById("shotPowerDisplay").innerText = firePower;
   
 });
 bombDamageSlider.addEventListener("input", function() {
@@ -63,6 +70,12 @@ bombDamageSlider.addEventListener("input", function() {
   bombRadiusSlider.value = bombRadius;
   bombDamageSlider.value = firePower;
   document.getElementById("shotSizeDisplay").innerText = bombRadius;
+
+ var ballElement = document.getElementById('ball');
+ ballElement.style.height = 2 * bombRadius + 'px';
+ ballElement.style.width = 2 * bombRadius + 'px'; 
+ ballElement.style.marginTop = -bombRadius + 'px';
+ ballElement.style.marginLeft = -bombRadius + 'px';
 });
 
 
@@ -390,28 +403,22 @@ function processRound(event) {
   }
 }
 
-
 // Ball Div follows mouse
 
 var $ = document.querySelector.bind(document);
 var $on = document.addEventListener.bind(document);
-
 var xmouse, ymouse;
+
 $on('mousemove', function (e) {
      xmouse = e.clientX || e.pageX;
      ymouse = e.clientY || e.pageY;
 });
 
-var ball = $('#ball');
-var x = void 0,
-     y = void 0,
-     dx = void 0,
-     dy = void 0,
-     tx = 0,
-     ty = 0,
-     key = -1;
+const ball = $('#ball');
 
-var followMouse = function followMouse() {
+let x, y, dx, dy;
+
+function followMouse() {
      key = requestAnimationFrame(followMouse);
 
      if(!x || !y) {
