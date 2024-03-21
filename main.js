@@ -206,22 +206,26 @@ function placeShips() {
 }
 
 // very simple, for now:   ***************************************************************************************
-function computerShot() {
-  const battleCanvas = canvas.getBoundingClientRect(); // gets the bounds of the field
-  const w = battleCanvas.clientWidth; // finds width of field 
-  const h = battleCanvas.clientHeight/2; // finds height of cpu field by finding total height divided by 2
+  let cHit = false;
+function computerShot(lastX, lastY) {
+  // const battleCanvas = canvas.getBoundingClientRect(); // gets the bounds of the field
+  const w = canvas.clientWidth; // finds width of field 
+  const h = canvas.clientHeight; // finds height of cpu field by finding total height divided by 2
   let bh = (h - bombRadius) / 2;
+  let x = Math.random() * w;
+  let y = bh + bombRadius + Math.random() * bh;
   // hit detection to target an area with a previous hit currently non functional
-  if (cHit) { 
-    let x = x;
-    let y =y;
-    return {x : x, y : y};
-  } else {
-    let x = Math.random() * w;
-    let y = bh + bombRadius + Math.random() * bh;
-    return {x : x, y : y};
+  if (cHit == true) { 
+    x = lastX;
+    y = lastY;
   }
-
+  console.log('w:', w);
+  console.log('bh:', bh);
+  console.log('x:', x);
+  console.log('y:', y);
+  console.log("cHit:", cHit);
+    return {x : x, y : y, cHit: cHit};
+  
  /*
  // function to create grid spaces for computer 
   function computerGrid(w) {
@@ -272,19 +276,22 @@ function assessDamages(x, y, radius) {
     message += `My bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `
     let ships = state.pShips.filter(s => s.damage < s.capacity);
     for (let ship of ships) {
-      let d = damage(ship.x, ship.y, x, y, ship.size, radius);
-      if (d > 0) {
+      let cd = damage(ship.x, ship.y, x, y, ship.size, radius);
+      console.log("cd: ", cd);
+      if (cd > 0) {
         hit = true;
         cHit = true;
-        ship.damage += d;
+        ship.damage += cd;
         message += `I hit your ${ship.type}. `;
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
           drawShip(ship.x, ship.y, ship.size, true);
         }
+      } else {
+        cHit = false;
       }
     }
-    if (!cHit) {
+    if (cHit == false) {
       message += "I did not hit anything."
     }
   }
@@ -292,7 +299,7 @@ function assessDamages(x, y, radius) {
   if (uHit == true || uHit == false) {
     return {hit: uHit, message : message};
   } else {
-  return {hit: cHit, message : message};
+  return {cHit: cHit, message : message};
   }
 }
 
@@ -368,28 +375,41 @@ function processRound(event) {
     state.shooting = "c";
     checkForWinner();
     if (!state.winner) {
-      let cPos = computerShot();
-      state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius});
-      drawCircle(cPos.x, cPos.y, bombRadius);
-      let computerResults = assessDamages(cPos.x, cPos.y, bombRadius);
-      hit = computerResults.hit;
-      cHit = computerResults.cHit
-      message += `<br>${computerResults.message}`;
-      state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius, hit: hit});
-      state.shooting = "u";
-      checkForWinner();
-    }
-    if (state.winner) {
-      if (state.winner == "u") {
-        message += `<br>You sunk all my ships.  You win!`;
+      if (cHit == true) {
+        let lastX = x;
+       let lastY = y;
+       let cPos = computerShot(lastX,lastY);
+       state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius});
+       drawCircle(cPos.x, cPos.y, bombRadius);
+       let computerResults = assessDamages(cPos.x, cPos.y, bombRadius);
+       hit = computerResults.hit;
+       message += `<br>${computerResults.message}`;
+       state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius, cHit: cHit});
+       state.shooting = "u";
+       checkForWinner();
       } else {
-        message += `<br>I sunk all your ships.  I win!`;
+       let cPos = computerShot();
+       state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius});
+       drawCircle(cPos.x, cPos.y, bombRadius);
+       let computerResults = assessDamages(cPos.x, cPos.y, bombRadius);
+       hit = computerResults.hit;
+       message += `<br>${computerResults.message}`;
+       state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius, cHit: cHit});
+       state.shooting = "u";
+       checkForWinner();
       }
     }
+      if (state.winner) {
+       if (state.winner == "u") {
+         message += `<br>You sunk all my ships.  You win!`;
+        } else {
+         message += `<br>I sunk all your ships.  I win!`;
+        }
+      }
     populateShipReport();
     populateNarrative(message);
     window.setTimeout(drawOcean, 2000);
-  }
+   }
 }
 
 
