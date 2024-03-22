@@ -76,9 +76,9 @@
       </tr>
     </table>
 
-    <svg width="100" height="100">
+    <svg width="200" height="100">
       <g id="redCircle">
-        <circle cx="50" cy="50" r="30" fill="red" stroke="black"></circle>
+        <circle cx="100" cy="50" r="30" fill="red" stroke="black"></circle>
       </g>
     </svg>
 
@@ -96,8 +96,8 @@
         const mouseY = event.pageY;
         const offsetX = 15;
         const offsetY = 15;
-        fruitTable.style.left = mouseX - offsetX + "px"; //adjusts x position to center table on cursor
-        fruitTable.style.top = mouseY - offsetY + "px"; //adjusts y position to center table on cursor
+        fruitTable.style.left = mouseX - offsetX - 65 + "px"; //adjusts x position to center table on cursor
+        fruitTable.style.top = mouseY - offsetY - 45 + "px"; //adjusts y position to center table on cursor
 
         if(!isTableVisible) {
           fruitTable.style.display = "";
