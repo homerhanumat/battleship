@@ -9,6 +9,7 @@ const gameBackground = "white";
 const oceanBackground = "#61cffa";
 const shotMissColor = "white";
 const shotHitColor = "red";
+const maxDamage = 2 + 3 + 5;
 const shipSizes = {
   Destroyer: 3,
   Cruiser: 6,
@@ -159,11 +160,10 @@ function drawCircle(x, y, r) {
   ctx.stroke();
 }
 
-function drawFilledCircle(x, y, r, hit) {
+function drawFilledCircle(x, y, r, damage) {
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2, true);
-  let fill = hit ? shotHitColor : shotMissColor;
-  ctx.fillStyle = fill;
+  ctx.fillStyle = `rgba(255, 0, 0, ${damage / maxDamage})`;
   ctx.fill();
   ctx.stroke();
 }
@@ -199,20 +199,14 @@ function drawOcean() {
 
   // user shots (if requested):
   if (pHistory.checked) {
-    for (let shot of state.pShots.filter(s => !s.hit)) {
-      drawFilledCircle(shot.x, shot.y, shot.r, false);
-    }
-    for (let shot of state.pShots.filter(s => s.hit)) {
-      drawFilledCircle(shot.x, shot.y, shot.r, true);
+    for (let shot of state.pShots) {
+      drawFilledCircle(shot.x, shot.y, shot.r, shot.damage);
     }
   }
   // user shots (if requested):
   if (cHistory.checked) {
-    for (let shot of state.cShots.filter(s => !s.hit)) {
-      drawFilledCircle(shot.x, shot.y, shot.r, false);
-    }
-    for (let shot of state.cShots.filter(s => s.hit)) {
-      drawFilledCircle(shot.x, shot.y, shot.r, true);
+    for (let shot of state.cShots) {
+      drawFilledCircle(shot.x, shot.y, shot.r, shot.damage);
     }
   }
   // user ships:
@@ -233,7 +227,7 @@ function damage(xs, ys, xb, yb, size, radius) {
   let distance = dist(xs, ys, xb, yb);
   let close = distance < (radius + size);
   let damage = close ? firePower : 0;
-  return damage;
+  return {damage : damage, close : close};
 }
 
 function placeShips() {
@@ -252,25 +246,28 @@ function placeShips() {
 
 // very simple, for now:
 function computerShot() {
+  const computerBombRadius = 40;  // fixed, for now;
   let w = canvas.clientWidth;
   let h = canvas.clientHeight;
   let bh = (h - bombRadius) / 2;
   let x = Math.random() * w;
-  let y = bh + bombRadius + Math.random() * bh;
-  return {x : x, y : y};
+  let y = bh + computerBombRadius + Math.random() * bh;
+  return {x : x, y : y, r : computerBombRadius};
 }
 
 function assessDamages(x, y, radius) {
   let hit = false;
   let message = "";
+  let totalDamage = 0;
   if (state.shooting == "u") {
     message += `Your bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `
     let ships = state.cShips.filter(s => s.damage < s.capacity);
     for (let ship of ships) {
       let d = damage(ship.x, ship.y, x, y, ship.size, radius);
-      if (d > 0) {
+      if (d.close) {
         hit = true;
-        ship.damage += d;
+        ship.damage += d.damage;
+        totalDamage += d.damage;
         message += `You hit my ${ship.type}. `;
       }
       if (ship.damage >= ship.capacity) {
@@ -286,9 +283,10 @@ function assessDamages(x, y, radius) {
     let ships = state.pShips.filter(s => s.damage < s.capacity);
     for (let ship of ships) {
       let d = damage(ship.x, ship.y, x, y, ship.size, radius);
-      if (d > 0) {
+      if (d.close) {
         hit = true;
-        ship.damage += d;
+        ship.damage += d.damage;
+        totalDamage += d.damage;
         message += `I hit your ${ship.type}. `;
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
@@ -301,7 +299,7 @@ function assessDamages(x, y, radius) {
     }
   }
   console.log(message);
-  return {hit: hit, message : message};
+  return {hit: hit, damage : totalDamage, message : message};
 }
 
 //update ship report:
@@ -366,22 +364,26 @@ function processRound(event) {
   checkForWinner();
   if (!state.winner) {
     let pos = getMousePos(canvas, event);
-    state.pShots.push({x: pos.x, y: pos.y, r : bombRadius});
     drawCircle(pos.x, pos.y, bombRadius);
     let userResults = assessDamages(pos.x, pos.y, bombRadius);
     let hit = userResults.hit;
+    let damage = userResults.damage;
     let message = userResults.message;
-    state.pShots.push({x: pos.x, y: pos.y, r : bombRadius, hit: hit});
+    state.pShots.push(
+      {x: pos.x, y: pos.y, r : bombRadius, hit: hit, damage: damage}
+    );
     state.shooting = "c";
     checkForWinner();
     if (!state.winner) {
-      let cPos = computerShot();
-      state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius});
-      drawCircle(cPos.x, cPos.y, bombRadius);
-      let computerResults = assessDamages(cPos.x, cPos.y, bombRadius);
+      let cShot = computerShot();
+      drawCircle(cShot.x, cShot.y, cShot.r);
+      let computerResults = assessDamages(cShot.x, cShot.y, cShot.r);
       hit = computerResults.hit;
+      let damage = computerResults.damage;
       message += `<br>${computerResults.message}`;
-      state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius, hit: hit});
+      state.cShots.push(
+        {x: cShot.x, y: cShot.y, r : cShot.r, hit: hit, damage: damage}
+      );
       state.shooting = "u";
       checkForWinner();
     }
@@ -399,6 +401,7 @@ function processRound(event) {
 }
 
 // Ball Div follows mouse
+// (Dr. White modifies Samuel's implementation.)
 
 // These event listeners keep track of whether the mouse is on the canvas.
 // In a subsequent event listener we will set the ball visibility to 
@@ -428,13 +431,14 @@ window.addEventListener('mousemove', function (e) {
   // make sure no margins or padding puts the ball off-center:
   ball.style.margin = "0px";
   ball.style.padding = "0px";
-  // check the global vartiable mouseOnCanvas
-  // to determine whether to show the ball.
+  // Finally, determine whether to show the ball.
+  // (It should show if the mouse is over the canvas and 
+  // there the game is still on.)
   // Note that the ball will show, and shots are recorded,
   // even if the user is in his/her own ocean.  If we want
-  // this behavior, should be not also make it possible
+  // this behavior, should we not also make it possible
   // to damage one's own ship?
-  ball.style.visibility = mouseOnCanvas ? "visible" : "hidden";
+  ball.style.visibility = mouseOnCanvas & !state.winner ? "visible" : "hidden";
 });
 
 
