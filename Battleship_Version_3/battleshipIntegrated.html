@@ -27,16 +27,18 @@
       <div class="item4">
         <div class="shotMenu1">
           <div class="sliderDIV1">
-            <input type="range" min="0" max="5" value="3" step=".1"  id="shotPower" class="vslider" oninput="shotPowerDisplay.value = this.value">
+            <label for="shotPower">Bomb Power</label>
+            <input type="range" min="0" max="5" value="3" step=".1"  id="shotPower" class="vslider">
           </div>
           <div class="sliderDIV2">  
-            <input type="range" min="0" max="100" value="40" step="1"  id="shotSize" class="vslider" oninput="shotSizeDisplay.value = this.value">
+            <label for="shotSize">Bomb Radius</label>
+            <input type="range" min="0" max="100" value="40" step="1"  id="shotSize" class="vslider">
           </div>
           <div class="sliderOutput1">
             <output id = "shotPowerDisplay">3</output>
           </div>
           <div class="sliderOutput2">
-            <output id = "shotSizeDisplay">40</output>
+            <output id = "shotSizeDisplay">40%</output>
           </div>
         </div>
         <!---

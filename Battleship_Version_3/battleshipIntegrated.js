@@ -61,6 +61,7 @@ bombRadiusSlider.addEventListener("input", function() {
   ballElement.style.marginLeft = -bombRadius + 'px';
  
   document.getElementById("shotPowerDisplay").innerText = firePower;
+  document.getElementById("shotSizeDisplay").innerText = `${bombRadius}%`;
   
 });
 
@@ -69,7 +70,8 @@ bombDamageSlider.addEventListener("input", function() {
   bombRadius = Math.round((100-(firePower*20))*10)/10;
   bombRadiusSlider.value = bombRadius;
   bombDamageSlider.value = firePower;
-  document.getElementById("shotSizeDisplay").innerText = bombRadius;
+  document.getElementById("shotSizeDisplay").innerText = `${bombRadius}%`;
+  document.getElementById("shotPowerDisplay").innerText = firePower;
 
   const ballElement = document.getElementById('ball');
   ballElement.style.height = 2 * bombRadius + 'px';
