@@ -44,10 +44,8 @@ const narrative = document.getElementById("narrative");
 const bombRadiusSlider = document.getElementById("shotSize");
 const bombDamageSlider = document.getElementById("shotPower");
 
-
-
-var bombRadius = 30;
-var firePower = 3.5;
+let bombRadius = 30;
+let firePower = 3.5;
 
 bombRadiusSlider.addEventListener("input", function() {
   bombRadius = parseFloat(this.value);
@@ -55,15 +53,16 @@ bombRadiusSlider.addEventListener("input", function() {
   bombDamageSlider.value = firePower;
   bombRadiusSlider.value = bombRadius;
 
- var ballElement = document.getElementById('ball');
- ballElement.style.height = 2 * bombRadius + 'px';
- ballElement.style.width = 2 * bombRadius + 'px';
- ballElement.style.marginTop = -bombRadius + 'px';
- ballElement.style.marginLeft = -bombRadius + 'px';
+  const ballElement = document.getElementById('ball');
+  ballElement.style.height = 2 * bombRadius + 'px';
+  ballElement.style.width = 2 * bombRadius + 'px';
+  ballElement.style.marginTop = -bombRadius + 'px';
+  ballElement.style.marginLeft = -bombRadius + 'px';
  
- document.getElementById("shotPowerDisplay").innerText = firePower;
+  document.getElementById("shotPowerDisplay").innerText = firePower;
   
 });
+
 bombDamageSlider.addEventListener("input", function() {
   firePower = parseFloat(this.value);
   bombRadius = Math.round((100-(firePower*20))*10)/10;
@@ -71,16 +70,12 @@ bombDamageSlider.addEventListener("input", function() {
   bombDamageSlider.value = firePower;
   document.getElementById("shotSizeDisplay").innerText = bombRadius;
 
- var ballElement = document.getElementById('ball');
- ballElement.style.height = 2 * bombRadius + 'px';
- ballElement.style.width = 2 * bombRadius + 'px'; 
- ballElement.style.marginTop = -bombRadius + 'px';
- ballElement.style.marginLeft = -bombRadius + 'px';
+  const ballElement = document.getElementById('ball');
+  ballElement.style.height = 2 * bombRadius + 'px';
+  ballElement.style.width = 2 * bombRadius + 'px'; 
+  ballElement.style.marginTop = -bombRadius + 'px';
+  ballElement.style.marginLeft = -bombRadius + 'px';
 });
-
-
-
-
 
 // game state:
 const state = {
@@ -405,37 +400,41 @@ function processRound(event) {
 
 // Ball Div follows mouse
 
-var $ = document.querySelector.bind(document);
-var $on = document.addEventListener.bind(document);
-var xmouse, ymouse;
-
-$on('mousemove', function (e) {
-     xmouse = e.clientX || e.pageX;
-     ymouse = e.clientY || e.pageY;
+// These event listeners keep track of whether the mouse is on the canvas.
+// In a subsequent event listener we will set the ball visibility to 
+// hidden or visible, depending on whether or not we are in the canvas.
+let mouseOnCanvas = false;
+canvas.addEventListener("mouseover", function (){
+  console.log("entered canvas");
+  mouseOnCanvas = true;
+});
+canvas.addEventListener("mouseout", function (){
+  console.log("exited canvas");
+  mouseOnCanvas = false;
 });
 
-const ball = $('#ball');
+// this listener makes the ball follow the mouse:
+window.addEventListener('mousemove', function (e) {
+  let x = e.clientX || e.pageX;
+  let y = e.clientY || e.pageY;
 
-let x, y, dx, dy;
+  const ball = document.getElementById('ball');
+  ball.style.width = `${parseInt(2 * bombRadius)}px`;
+  ball.style.height = `${parseInt(2 * bombRadius)}px`;
+  // I messed around a bit and found that an extra 8 pixels
+  // makes the following ball center on the mouse:
+  ball.style.left = `${parseInt(x - bombRadius - 8)}px`;
+  ball.style.top = `${parseInt(y - bombRadius) - 8}px`;
+  // make sure no margins or padding puts the ball off-center:
+  ball.style.margin = "0px";
+  ball.style.padding = "0px";
+  // check the global vartiable mouseOnCanvas
+  // to determine whether to show the ball.
+  // Note that the ball will show, and shots are recorded,
+  // even if the user is in his/her own ocean.  If we want
+  // this behavior, should be not also make it possible
+  // to damage one's own ship?
+  ball.style.visibility = mouseOnCanvas ? "visible" : "hidden";
+});
 
-function followMouse() {
-     key = requestAnimationFrame(followMouse);
-
-     if(!x || !y) {
-          x = xmouse;
-          y = ymouse;
-     } else {
-          dx = (xmouse - x) * .4;
-          dy = (ymouse - y) * .4;
-          if(Math.abs(dx) + Math.abs(dy) < 0.1) {
-               x = xmouse;
-               y = ymouse;
-          } else {
-               x += dx;
-               y += dy;
-          }
-     }
-     ball.style.left = x + 'px';
-     ball.style.top = y + 'px';
-};
 
