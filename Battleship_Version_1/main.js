@@ -3,11 +3,11 @@
  *************************************************/
 
 // parameters
-const oceanBackground = "#7FFFD4"; // aquamarine
-const shotMissColor = "AntiqueWhite";
-const shotHitColor = "coral";
-let bombRadius = 10;
-let bombRadiusAdjusted = false;
+const gameBackground = "white";
+const oceanBackground = "#61cffa";
+const shotMissColor = "white";
+const shotHitColor = "red";
+const bombRadius = 30;
 const shipSizes = {
   destroyer: 3,
   cruiser: 6,
@@ -38,22 +38,6 @@ cHistory.addEventListener("change", drawOcean);
 
 const shipReport = document.getElementById("ship-report");
 const narrative = document.getElementById("narrative");
-
-const bombRadiusSlider = document.getElementById("myRange2");
-bombRadiusSlider.addEventListener("input", function() {
-  bombRadius = parseFloat(this.value);
-  firePower = 2.35-Math.log(bombRadius/2);
-  bombDamageSlider.value = firePower;
-  bombRadiusSlider.value = bombRadius;
-});
-
-const bombDamageSlider = document.getElementById("myRange1");
-bombDamageSlider.addEventListener("input", function() {
-  firePower = parseFloat(this.value);
-  bombRadius = Math.exp((2.35-firePower)*2);
-  bombRadiusSlider.value = bombRadius;
-  bombDamageSlider.value = firePower;
-});
 
 // game state:
 const state = {
@@ -149,7 +133,7 @@ function drawFilledCircle(x, y, r, hit) {
 function drawShip(x, y, size, sunk) {
   ctx.beginPath();
   ctx.arc(x, y, size, 0, Math.PI * 2, true);
-  ctx.fillStyle = sunk ? "red" : "blue";
+  ctx.fillStyle = sunk ? "#c90d00" : "blue";
   ctx.fill();
   ctx.fillStyle = "black";
 }
@@ -168,7 +152,13 @@ function drawOcean() {
   // top border of computer area:
   ctx.fillRect(0, 0, w, bh);
   // bottom border of user area:
-  ctx.fillRect(0, bh + bombRadius, w, h);
+
+
+  // removed code '+ bombRadius' for smaller dividing rectangle
+  ctx.fillRect(0, bh + 10, w, h);
+
+
+
   // user shots (if requested):
   if (pHistory.checked) {
     for (let shot of state.pShots.filter(s => !s.hit)) {
@@ -203,7 +193,7 @@ function drawOcean() {
 function damage(xs, ys, xb, yb, size, radius) {
   let distance = dist(xs, ys, xb, yb);
   let close = distance < (radius + size);
-  let damage = close ? firePower : 0;
+  let damage = close ? 1 : 0;
   return damage;
 }
 
@@ -314,7 +304,6 @@ function getMousePos(canvas, evt) {
     y: evt.clientY - rect.top
   };
 }
-
 
 // modifies state:
 function checkForWinner() {
