@@ -96,6 +96,7 @@ const state = {
   ],
   pShots: [],
   cShots: []
+  // move ships under attack and hit here
 };
 
 /*************************************************
@@ -205,18 +206,40 @@ function placeShips() {
 }
 
 // very simple, for now: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+let previousHits = []; // array to hold the coordinates for a hit
+let shipsUnderAttack = []; // ships under attack needs to check 
 function computerShot() {
   let w = canvas.clientWidth;
   let h = canvas.clientHeight;
   let bh = (h - bombRadius) / 2;
-  let x = Math.random() * w;
-  let y = bh + bombRadius + Math.random() * bh;
-  return {x : x, y : y};
-}
+  // let ships = state.pShips.filter(function (s) {
+  //   let sunk = (s.damage >= s.capacity);
+  //   let close = dist(x1,y1)
+  // });
+  // for (let ship of ships) {
+  if (previousHits.length > 0) { // if there is something in the previousHits array 
+    // if (/*previousHits == hit &&*/ship.capacity > ship.damage) { // if ships capacity can still be damaged
+      let hit = previousHits[0];
+      return {x: hit.x, y:hit.y, r:bombRadius};
+      // } else if (/*previousHits == hit &&*/ship.capacity <= ship.damage) { //if ship is sunk
+      //   previousHits = []; // clears the array 
+      //   let x = Math.random() * w;
+      //   let y = bh + bombRadius + Math.random() * bh;
+      //   return {x : x, y : y};
+      // } 
+    } else { // if no previous hit do random attack
+    let x = Math.random() * w;
+    let y = bh + bombRadius + Math.random() * bh;
+    return {x : x, y : y, r:bombRadius};
+    }
+  }
+    /* future plans, create array of areas hit and check against it */
+// }
 
 function assessDamages(x, y, radius) {
   let hit = false;
   let message = "";
+  let sunk = (s.damage >= s.capacity);
   if (state.shooting == "u") {
     message += `Your bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `
     let ships = state.cShips.filter(s => s.damage < s.capacity);
@@ -242,12 +265,16 @@ function assessDamages(x, y, radius) {
       let cd = damage(ship.x, ship.y, x, y, ship.size, radius);
       if (cd > 0) {
         hit = true;
+
         ship.damage += cd;
         message += `I hit your ${ship.type}. `;
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
           drawShip(ship.x, ship.y, ship.size, true);
         }
+      }
+      if (hit && ship.damage < ship.capacity) {
+        previousHits.push({ x: x, y: y, r:bombRadius});
       }
     }
     if (!hit) {
@@ -330,7 +357,7 @@ function processRound(event) {
     checkForWinner();
     if (!state.winner) {
       let cPos = computerShot();
-      state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius});
+      state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius});  // problem with cPos
       drawCircle(cPos.x, cPos.y, bombRadius);
       let computerResults = assessDamages(cPos.x, cPos.y, bombRadius);
       let chit = computerResults.hit;
