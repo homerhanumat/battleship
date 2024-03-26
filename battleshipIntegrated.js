@@ -38,6 +38,14 @@ pHistory.addEventListener("change", drawOcean);
 const cHistory = document.getElementById("computer-shots");
 cHistory.addEventListener("change", drawOcean);
 
+// set volume of sound effects
+const audio = document.getElementById("audio-preference");
+audio.addEventListener("change", function() {
+  uWin.volume = audio.checked ? 0.01 : 0;
+  uLose.volume = audio.checked ? 0.5 : 0;
+  uHit.volume = audio.checked ? 0.01 : 0;
+});
+
 const shipReport = document.getElementById("ship-report");
 const narrative = document.getElementById("narrative");
 
@@ -49,11 +57,6 @@ const bombDamageSlider = document.getElementById("shotPower");
 const uWin = new Audio("Sounds/uWin.mp3");
 const uLose = new Audio("Sounds/uLoseAlt.mp3");
 const uHit = new Audio("Sounds/uHit.mp3");
-
-// set volume of sound effects
-uWin.volume = 0.01;
-uLose.volume = 0.5;
-uHit.volume = 0.01;
 
 let bombRadius = 30;
 let firePower = 3.5;
