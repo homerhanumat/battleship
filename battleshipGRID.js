@@ -282,7 +282,7 @@ function assessDamages(x, y, radius) {
         hit = true;
         ship.damage += d;
         message += `I hit your ${ship.type}. `;
-        playSound(uHit);
+        uHit.play();
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
           drawShip(ship.x, ship.y, ship.size, true);
@@ -381,10 +381,10 @@ function processRound(event) {
     if (state.winner) {
       if (state.winner == "u") {
         message += `<br>You sunk all my ships.  You win!`;
-        playSound(uWin);
+        uWin.play();
       } else {
         message += `<br>I sunk all your ships.  I win!`;
-        playSound(uLose);
+        uLose.play();
       }
     }
     populateShipReport();
