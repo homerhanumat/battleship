@@ -45,10 +45,15 @@ const narrative = document.getElementById("narrative");
 const bombRadiusSlider = document.getElementById("shotSize");
 const bombDamageSlider = document.getElementById("shotPower");
 
-// sound effects
+// initialize sound effects
 const uWin = new Audio("Sounds/uWin.mp3");
-const uLose = new Audio("Sounds/uLose.mp3");
+const uLose = new Audio("Sounds/uLoseAlt.mp3");
 const uHit = new Audio("Sounds/uHit.mp3");
+
+// set volume of sound effects
+uWin.volume = 0.01;
+uLose.volume = 0.5;
+uHit.volume = 0.01;
 
 let bombRadius = 30;
 let firePower = 3.5;
