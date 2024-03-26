@@ -1,0 +1,43 @@
+body {
+    text-align: center;
+    background-image: url("homescreen-background.jpg");
+    background-size: cover;
+  }
+
+button {
+    margin-top: 90px;
+    background-color: #f44336;
+    border: 3px solid white;
+    padding: 14px 50px;
+    text-align: center;
+    font-size: 50px;
+    border-radius: 12px;
+   }
+
+   .logo-container {
+    text-align: center; /* Center the image horizontally */
+    position: relative; /* Ensure the logo is on top of the overlay */
+    z-index: 2; /* Ensure the logo is on top of the overlay */
+  }
+  
+  .logo-container img {
+    width: 300px; /* Adjust the width as needed */
+    height: auto; /* Maintain aspect ratio */
+  }
+  
+p {
+  font-size: 30px;
+  margin: 0 20px 0 20px ;
+  color: white;
+}
+
+.links-container {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.links {
+  display: flex;
+  justify-content: space-between;
+}
