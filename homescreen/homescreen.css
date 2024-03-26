@@ -17,7 +17,6 @@ button {
    .logo-container {
     text-align: center; /* Center the image horizontally */
     position: relative; /* Ensure the logo is on top of the overlay */
-   
   }
   
   .logo-container img {
