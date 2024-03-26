@@ -45,6 +45,11 @@ const narrative = document.getElementById("narrative");
 const bombRadiusSlider = document.getElementById("shotSize");
 const bombDamageSlider = document.getElementById("shotPower");
 
+// sound effects
+const uWin = new Audio("Sounds/uWin.mp3");
+const uLose = new Audio("Sounds/uLose.mp3");
+const uHit = new Audio("Sounds/uHit.mp3");
+
 let bombRadius = 30;
 let firePower = 3.5;
 
@@ -290,6 +295,7 @@ function assessDamages(x, y, radius) {
         ship.damage += d.damage;
         totalDamage += d.damage;
         message += `I hit your ${ship.type}. `;
+        uHit.play();
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
           drawShip(ship.x, ship.y, ship.size, true);
@@ -392,8 +398,10 @@ function processRound(event) {
     if (state.winner) {
       if (state.winner == "u") {
         message += `<br>You sunk all my ships.  You win!`;
+        uWin.play();
       } else {
         message += `<br>I sunk all your ships.  I win!`;
+        uLose.play();
       }
     }
     populateShipReport();
