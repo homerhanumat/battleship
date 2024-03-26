@@ -9,6 +9,7 @@ const gameBackground = "white";
 const oceanBackground = "#61cffa";
 const shotMissColor = "white";
 const shotHitColor = "red";
+const maxDamage = 2 + 3 + 5;
 const shipSizes = {
   Destroyer: 3,
   Cruiser: 6,
@@ -44,29 +45,39 @@ const narrative = document.getElementById("narrative");
 const bombRadiusSlider = document.getElementById("shotSize");
 const bombDamageSlider = document.getElementById("shotPower");
 
-// sound effects
-const uWin = getElementById("uWin");
-const uLose = getElementById("uLose");
-const uHit = getElementById("uHit");
-
-
-var bombRadius = 30;
-var firePower = 3.5;
+let bombRadius = 30;
+let firePower = 3.5;
 
 bombRadiusSlider.addEventListener("input", function() {
   bombRadius = parseFloat(this.value);
   firePower = Math.round((10-(bombRadius/10))*5)/10;
   bombDamageSlider.value = firePower;
   bombRadiusSlider.value = bombRadius;
+
+  const ballElement = document.getElementById('ball');
+  ballElement.style.height = 2 * bombRadius + 'px';
+  ballElement.style.width = 2 * bombRadius + 'px';
+  ballElement.style.marginTop = -bombRadius + 'px';
+  ballElement.style.marginLeft = -bombRadius + 'px';
+ 
   document.getElementById("shotPowerDisplay").innerText = firePower;
+  document.getElementById("shotSizeDisplay").innerText = `${bombRadius}%`;
   
 });
+
 bombDamageSlider.addEventListener("input", function() {
   firePower = parseFloat(this.value);
   bombRadius = Math.round((100-(firePower*20))*10)/10;
   bombRadiusSlider.value = bombRadius;
   bombDamageSlider.value = firePower;
-  document.getElementById("shotSizeDisplay").innerText = bombRadius;
+  document.getElementById("shotSizeDisplay").innerText = `${bombRadius}%`;
+  document.getElementById("shotPowerDisplay").innerText = firePower;
+
+  const ballElement = document.getElementById('ball');
+  ballElement.style.height = 2 * bombRadius + 'px';
+  ballElement.style.width = 2 * bombRadius + 'px'; 
+  ballElement.style.marginTop = -bombRadius + 'px';
+  ballElement.style.marginLeft = -bombRadius + 'px';
 });
 
 // game state:
@@ -151,11 +162,10 @@ function drawCircle(x, y, r) {
   ctx.stroke();
 }
 
-function drawFilledCircle(x, y, r, hit) {
+function drawFilledCircle(x, y, r, damage) {
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2, true);
-  let fill = hit ? shotHitColor : shotMissColor;
-  ctx.fillStyle = fill;
+  ctx.fillStyle = `rgba(255, 0, 0, ${damage / maxDamage})`;
   ctx.fill();
   ctx.stroke();
 }
@@ -191,20 +201,14 @@ function drawOcean() {
 
   // user shots (if requested):
   if (pHistory.checked) {
-    for (let shot of state.pShots.filter(s => !s.hit)) {
-      drawFilledCircle(shot.x, shot.y, shot.r, false);
-    }
-    for (let shot of state.pShots.filter(s => s.hit)) {
-      drawFilledCircle(shot.x, shot.y, shot.r, true);
+    for (let shot of state.pShots) {
+      drawFilledCircle(shot.x, shot.y, shot.r, shot.damage);
     }
   }
   // user shots (if requested):
   if (cHistory.checked) {
-    for (let shot of state.cShots.filter(s => !s.hit)) {
-      drawFilledCircle(shot.x, shot.y, shot.r, false);
-    }
-    for (let shot of state.cShots.filter(s => s.hit)) {
-      drawFilledCircle(shot.x, shot.y, shot.r, true);
+    for (let shot of state.cShots) {
+      drawFilledCircle(shot.x, shot.y, shot.r, shot.damage);
     }
   }
   // user ships:
@@ -225,7 +229,7 @@ function damage(xs, ys, xb, yb, size, radius) {
   let distance = dist(xs, ys, xb, yb);
   let close = distance < (radius + size);
   let damage = close ? firePower : 0;
-  return damage;
+  return {damage : damage, close : close};
 }
 
 function placeShips() {
@@ -244,25 +248,28 @@ function placeShips() {
 
 // very simple, for now:
 function computerShot() {
+  const computerBombRadius = 40;  // fixed, for now;
   let w = canvas.clientWidth;
   let h = canvas.clientHeight;
   let bh = (h - bombRadius) / 2;
   let x = Math.random() * w;
-  let y = bh + bombRadius + Math.random() * bh;
-  return {x : x, y : y};
+  let y = bh + computerBombRadius + Math.random() * bh;
+  return {x : x, y : y, r : computerBombRadius};
 }
 
 function assessDamages(x, y, radius) {
   let hit = false;
   let message = "";
+  let totalDamage = 0;
   if (state.shooting == "u") {
     message += `Your bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `
     let ships = state.cShips.filter(s => s.damage < s.capacity);
     for (let ship of ships) {
       let d = damage(ship.x, ship.y, x, y, ship.size, radius);
-      if (d > 0) {
+      if (d.close) {
         hit = true;
-        ship.damage += d;
+        ship.damage += d.damage;
+        totalDamage += d.damage;
         message += `You hit my ${ship.type}. `;
       }
       if (ship.damage >= ship.capacity) {
@@ -278,11 +285,11 @@ function assessDamages(x, y, radius) {
     let ships = state.pShips.filter(s => s.damage < s.capacity);
     for (let ship of ships) {
       let d = damage(ship.x, ship.y, x, y, ship.size, radius);
-      if (d > 0) {
+      if (d.close) {
         hit = true;
-        ship.damage += d;
+        ship.damage += d.damage;
+        totalDamage += d.damage;
         message += `I hit your ${ship.type}. `;
-        uHit.play();
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
           drawShip(ship.x, ship.y, ship.size, true);
@@ -294,7 +301,7 @@ function assessDamages(x, y, radius) {
     }
   }
   console.log(message);
-  return {hit: hit, message : message};
+  return {hit: hit, damage : totalDamage, message : message};
 }
 
 //update ship report:
@@ -359,32 +366,34 @@ function processRound(event) {
   checkForWinner();
   if (!state.winner) {
     let pos = getMousePos(canvas, event);
-    state.pShots.push({x: pos.x, y: pos.y, r : bombRadius});
     drawCircle(pos.x, pos.y, bombRadius);
     let userResults = assessDamages(pos.x, pos.y, bombRadius);
     let hit = userResults.hit;
+    let damage = userResults.damage;
     let message = userResults.message;
-    state.pShots.push({x: pos.x, y: pos.y, r : bombRadius, hit: hit});
+    state.pShots.push(
+      {x: pos.x, y: pos.y, r : bombRadius, hit: hit, damage: damage}
+    );
     state.shooting = "c";
     checkForWinner();
     if (!state.winner) {
-      let cPos = computerShot();
-      state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius});
-      drawCircle(cPos.x, cPos.y, bombRadius);
-      let computerResults = assessDamages(cPos.x, cPos.y, bombRadius);
+      let cShot = computerShot();
+      drawCircle(cShot.x, cShot.y, cShot.r);
+      let computerResults = assessDamages(cShot.x, cShot.y, cShot.r);
       hit = computerResults.hit;
+      let damage = computerResults.damage;
       message += `<br>${computerResults.message}`;
-      state.cShots.push({x: cPos.x, y: cPos.y, r : bombRadius, hit: hit});
+      state.cShots.push(
+        {x: cShot.x, y: cShot.y, r : cShot.r, hit: hit, damage: damage}
+      );
       state.shooting = "u";
       checkForWinner();
     }
     if (state.winner) {
       if (state.winner == "u") {
         message += `<br>You sunk all my ships.  You win!`;
-        uWin.play();
       } else {
         message += `<br>I sunk all your ships.  I win!`;
-        uLose.play();
       }
     }
     populateShipReport();
@@ -393,45 +402,45 @@ function processRound(event) {
   }
 }
 
-
 // Ball Div follows mouse
+// (Dr. White modifies Samuel's implementation.)
 
-var $ = document.querySelector.bind(document);
-var $on = document.addEventListener.bind(document);
-
-var xmouse, ymouse;
-$on('mousemove', function (e) {
-     xmouse = e.clientX || e.pageX;
-     ymouse = e.clientY || e.pageY;
+// These event listeners keep track of whether the mouse is on the canvas.
+// In a subsequent event listener we will set the ball visibility to 
+// hidden or visible, depending on whether or not we are in the canvas.
+let mouseOnCanvas = false;
+canvas.addEventListener("mouseover", function (){
+  console.log("entered canvas");
+  mouseOnCanvas = true;
+});
+canvas.addEventListener("mouseout", function (){
+  console.log("exited canvas");
+  mouseOnCanvas = false;
 });
 
-var ball = $('#ball');
-var x = void 0,
-     y = void 0,
-     dx = void 0,
-     dy = void 0,
-     tx = 0,
-     ty = 0,
-     key = -1;
+// this listener makes the ball follow the mouse:
+window.addEventListener('mousemove', function (e) {
+  let x = e.clientX || e.pageX;
+  let y = e.clientY || e.pageY;
 
-var followMouse = function followMouse() {
-     key = requestAnimationFrame(followMouse);
+  const ball = document.getElementById('ball');
+  ball.style.width = `${parseInt(2 * bombRadius)}px`;
+  ball.style.height = `${parseInt(2 * bombRadius)}px`;
+  // I messed around a bit and found that an extra 8 pixels
+  // makes the following ball center on the mouse:
+  ball.style.left = `${parseInt(x - bombRadius - 8)}px`;
+  ball.style.top = `${parseInt(y - bombRadius) - 8}px`;
+  // make sure no margins or padding puts the ball off-center:
+  ball.style.margin = "0px";
+  ball.style.padding = "0px";
+  // Finally, determine whether to show the ball.
+  // (It should show if the mouse is over the canvas and 
+  // there the game is still on.)
+  // Note that the ball will show, and shots are recorded,
+  // even if the user is in his/her own ocean.  If we want
+  // this behavior, should we not also make it possible
+  // to damage one's own ship?
+  ball.style.visibility = mouseOnCanvas & !state.winner ? "visible" : "hidden";
+});
 
-     if(!x || !y) {
-          x = xmouse;
-          y = ymouse;
-     } else {
-          dx = (xmouse - x) * .4;
-          dy = (ymouse - y) * .4;
-          if(Math.abs(dx) + Math.abs(dy) < 0.1) {
-               x = xmouse;
-               y = ymouse;
-          } else {
-               x += dx;
-               y += dy;
-          }
-     }
-     ball.style.left = x + 'px';
-     ball.style.top = y + 'px';
-};
 
