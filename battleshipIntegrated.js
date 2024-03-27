@@ -44,12 +44,14 @@ audio.addEventListener("change", function() {
   uWin.volume = audio.checked ? 0.01 : 0;
   uLose.volume = audio.checked ? 0.5 : 0;
   uHit.volume = audio.checked ? 0.01 : 0;
+  cHit.volume = audio.checked ? 0.025 : 0;
 });
 // set volume of sound effects when page loads
 window.addEventListener("DOMContentLoaded", function() {
   uWin.volume = audio.checked ? 0.01 : 0;
   uLose.volume = audio.checked ? 0.5 : 0;
   uHit.volume = audio.checked ? 0.01 : 0;
+  cHit.volume = audio.checked ? 0.025 : 0;
 });
 
 const shipReport = document.getElementById("ship-report");
@@ -63,6 +65,7 @@ const bombDamageSlider = document.getElementById("shotPower");
 const uWin = new Audio("Sounds/uWin.mp3");
 const uLose = new Audio("Sounds/uLoseAlt.mp3");
 const uHit = new Audio("Sounds/uHit.mp3");
+const cHit = new Audio("Sounds/cHit.mp3");
 
 let bombRadius = 30;
 let firePower = 3.5;
@@ -290,6 +293,7 @@ function assessDamages(x, y, radius) {
         ship.damage += d.damage;
         totalDamage += d.damage;
         message += `You hit my ${ship.type}. `;
+        cHit.play();
       }
       if (ship.damage >= ship.capacity) {
         message += `You sunk my ${ship.type}! `;
