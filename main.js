@@ -212,34 +212,41 @@ function computerShot() {
   let w = canvas.clientWidth;
   let h = canvas.clientHeight;
   let bh = (h - bombRadius) / 2;
-  // let ships = state.pShips.filter(function (s) {
-  //   let sunk = (s.damage >= s.capacity);
-  //   let close = dist(x1,y1)
-  // });
-  // for (let ship of ships) {
   if (previousHits.length > 0) { // if there is something in the previousHits array 
-    // if (/*previousHits == hit &&*/ship.capacity > ship.damage) { // if ships capacity can still be damaged
       let hit = previousHits[0];
       return {x: hit.x, y:hit.y, r:bombRadius};
-      // } else if (/*previousHits == hit &&*/ship.capacity <= ship.damage) { //if ship is sunk
-      //   previousHits = []; // clears the array 
-      //   let x = Math.random() * w;
-      //   let y = bh + bombRadius + Math.random() * bh;
-      //   return {x : x, y : y};
-      // } 
     } else { // if no previous hit do random attack
     let x = Math.random() * w;
     let y = bh + bombRadius + Math.random() * bh;
     return {x : x, y : y, r:bombRadius};
     }
   }
+    // fix and clean up
     /* future plans, create array of areas hit and check against it */
 // }
+
+function contains (arr,obj) {
+  isThere = false;
+  for (let elem of arr) {
+      if (elem === obj) {
+          isThere = true;
+      }
+  }
+  return(isThere);
+}
+
+function remove (arr,obj) {
+  let result = arr.filter(function (elem) {
+          return(elem !== obj);
+  }
+);
+return(result);
+}
 
 function assessDamages(x, y, radius) {
   let hit = false;
   let message = "";
-  let sunk = (s.damage >= s.capacity);
+  // let sunk = (ships.damage >= ships.capacity);
   if (state.shooting == "u") {
     message += `Your bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `
     let ships = state.cShips.filter(s => s.damage < s.capacity);
@@ -265,16 +272,19 @@ function assessDamages(x, y, radius) {
       let cd = damage(ship.x, ship.y, x, y, ship.size, radius);
       if (cd > 0) {
         hit = true;
-
+        previousHits.push({ x: x, y: y, r:bombRadius});
+        if (contains(shipsUnderAttack, ship.type) == false) {
+          shipsUnderAttack.push(ship.type);
+        }
+        console.log(shipsUnderAttack);
         ship.damage += cd;
         message += `I hit your ${ship.type}. `;
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
           drawShip(ship.x, ship.y, ship.size, true);
+          previousHits = [];
+          shipsUnderAttack = remove(shipsUnderAttack, ship.type);
         }
-      }
-      if (hit && ship.damage < ship.capacity) {
-        previousHits.push({ x: x, y: y, r:bombRadius});
       }
     }
     if (!hit) {
@@ -283,7 +293,8 @@ function assessDamages(x, y, radius) {
   }
   console.log(message);
   return {hit: hit, message : message};
-}
+} // update and add helper functions, need to check if there is an object in previousHits, push to previous, and remove from
+
 
 //update ship report:
 function populateShipReport() {
