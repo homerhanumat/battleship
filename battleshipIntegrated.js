@@ -2,7 +2,10 @@
  * setup
  *************************************************/
 
-
+// our goal with this branch is to create a formula
+// linking the square of the bomb radius to the damage
+// in such a way that damage decreases faster than the
+// square of the radius increases.
 
 // parameters
 const gameBackground = "white";
