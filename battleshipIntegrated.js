@@ -38,9 +38,15 @@ pHistory.addEventListener("change", drawOcean);
 const cHistory = document.getElementById("computer-shots");
 cHistory.addEventListener("change", drawOcean);
 
-// set volume of sound effects
+// set volume of sound effects when user changes preference
 const audio = document.getElementById("audio-preference");
 audio.addEventListener("change", function() {
+  uWin.volume = audio.checked ? 0.01 : 0;
+  uLose.volume = audio.checked ? 0.5 : 0;
+  uHit.volume = audio.checked ? 0.01 : 0;
+});
+// set volume of sound effects when page loads
+window.addEventListener("DOMContentLoaded", function() {
   uWin.volume = audio.checked ? 0.01 : 0;
   uLose.volume = audio.checked ? 0.5 : 0;
   uHit.volume = audio.checked ? 0.01 : 0;
