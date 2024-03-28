@@ -75,7 +75,7 @@ let firePower = 3.5;
 
 bombRadiusSlider.addEventListener("input", function() {
   bombRadius = parseFloat(this.value);
-  firePower = Math.round((10-(bombRadius/10))*5)/10;
+  firePower = (5-Math.pow((bombRadius+0.623)/45,2)).toFixed(2);
   bombDamageSlider.value = firePower;
   bombRadiusSlider.value = bombRadius;
 
@@ -91,8 +91,8 @@ bombRadiusSlider.addEventListener("input", function() {
 });
 
 bombDamageSlider.addEventListener("input", function() {
-  firePower = parseFloat(this.value);
-  bombRadius = Math.round((100-(firePower*20))*10)/10;
+  firePower = parseFloat(this.value).toFixed(2);
+  bombRadius = (45*(Math.sqrt(-firePower + 5))-0.623).toFixed(2);
   bombRadiusSlider.value = bombRadius;
   bombDamageSlider.value = firePower;
   document.getElementById("shotSizeDisplay").innerText = `${bombRadius}%`;
@@ -346,8 +346,8 @@ function populateShipReport() {
       `<tr>
         <td>${state.pShips[i].type}</td>
         <td>${state.pShips[i].capacity}</td>
-        <td>${state.pShips[i].damage}</td>
-        <td>${state.cShips[i].damage}</td>
+        <td>${state.pShips[i].damage.toFixed(2)}</td>
+        <td>${state.cShips[i].damage.toFixed(2)}</td>
       </tr>`;
   }
   contents += "</tbody>";
