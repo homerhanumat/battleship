@@ -95,8 +95,9 @@ const state = {
     }
   ],
   pShots: [],
-  cShots: []
-  // move ships under attack and hit here
+  cShots: [],
+  previousHits: [], // array to hold the coordinates for a hit
+  shipsUnderAttack: [] // array to hold damaged ships to be attacked
 };
 
 /*************************************************
@@ -143,6 +144,25 @@ function dist(x1, y1, x2, y2) {
   return Math.sqrt(sX*sX+sY*sY);
 }
 
+function contains (arr,obj) {
+  isThere = false;
+  for (let elem of arr) {
+      if (elem === obj) {
+          isThere = true;
+      }
+  }
+  return(isThere);
+}
+
+function remove (arr,obj) {
+  let result = arr.filter(function (elem) {
+          return(elem !== obj);
+  }
+);
+return(result);
+}
+
+
 function drawOcean() {
   let w = canvas.clientWidth;
   let h = canvas.clientHeight;
@@ -162,6 +182,7 @@ function drawOcean() {
       drawFilledCircle(shot.x, shot.y, shot.r, true);
     }
   }
+  
   // user shots (if requested):
   if (cHistory.checked) {
     for (let shot of state.cShots.filter(s => !s.hit)) {
@@ -206,14 +227,12 @@ function placeShips() {
 }
 
 // very simple, for now: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-let previousHits = []; // array to hold the coordinates for a hit
-let shipsUnderAttack = []; // ships under attack needs to check 
 function computerShot() {
   let w = canvas.clientWidth;
   let h = canvas.clientHeight;
   let bh = (h - bombRadius) / 2;
-  if (previousHits.length > 0) { // if there is something in the previousHits array 
-      let hit = previousHits[0];
+  if (state.previousHits.length > 0) { // if there is something in the previousHits array 
+      let hit = state.previousHits[0];
       return {x: hit.x, y:hit.y, r:bombRadius};
     } else { // if no previous hit do random attack
     let x = Math.random() * w;
@@ -225,23 +244,6 @@ function computerShot() {
     /* future plans, create array of areas hit and check against it */
 // }
 
-function contains (arr,obj) {
-  isThere = false;
-  for (let elem of arr) {
-      if (elem === obj) {
-          isThere = true;
-      }
-  }
-  return(isThere);
-}
-
-function remove (arr,obj) {
-  let result = arr.filter(function (elem) {
-          return(elem !== obj);
-  }
-);
-return(result);
-}
 
 function assessDamages(x, y, radius) {
   let hit = false;
@@ -272,18 +274,18 @@ function assessDamages(x, y, radius) {
       let cd = damage(ship.x, ship.y, x, y, ship.size, radius);
       if (cd > 0) {
         hit = true;
-        previousHits.push({ x: x, y: y, r:bombRadius});
-        if (contains(shipsUnderAttack, ship.type) == false) {
-          shipsUnderAttack.push(ship.type);
+        state.previousHits.push({ x: x, y: y, r:bombRadius});
+        if (contains(state.shipsUnderAttack, ship.type) == false) {
+          state.shipsUnderAttack.push(ship.type);
         }
-        console.log(shipsUnderAttack);
+        console.log(state.shipsUnderAttack);
         ship.damage += cd;
         message += `I hit your ${ship.type}. `;
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
           drawShip(ship.x, ship.y, ship.size, true);
-          previousHits = [];
-          shipsUnderAttack = remove(shipsUnderAttack, ship.type);
+          state.previousHits = [];
+          state.shipsUnderAttack = remove(state.shipsUnderAttack, ship.type);
         }
       }
     }
