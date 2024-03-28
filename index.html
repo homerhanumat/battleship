@@ -5,7 +5,7 @@
 
 </head>
 
-<body>
+<body id="the-body">
   <!--"r" is radius, "cx" is the x-coordinate center of circle (default 0),
   "cy" is the y-coordinate center of circle (default 0)-->
   
@@ -21,7 +21,11 @@
   <script src="https://d3js.org/d3.v7.min.js"></script>
 
   <body>
-  <div class="example_div"></div>
+    <div class="example-div"></div>
+    <div>  
+      <label for="radius">Bomb Radius</label>
+      <input id="radius" type="range" min="0" max="100" value="40">
+    </div>
   </body>
 
   <script type="text/javascript">
@@ -113,5 +117,7 @@
 <!--*****************************************************************************-->
 
   </body>
+
+  <script src="main.js"></script>
 
 </html>
