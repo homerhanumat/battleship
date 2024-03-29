@@ -61,6 +61,7 @@ body {
 }
 .sliderOutput2 {
   grid-area: output2;
+  position: absolute;
 }
 
 .shotMenu1 { 
