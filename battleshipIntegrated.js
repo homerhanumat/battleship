@@ -75,7 +75,7 @@ let firePower = 3.5;
 
 bombRadiusSlider.addEventListener("input", function() {
   bombRadius = parseFloat(this.value);
-  firePower = (5-Math.pow((bombRadius+0.623)/45,2)).toFixed(2);
+  firePower = (Math.pow((bombRadius-104),2)/2163).toFixed(2);
   bombDamageSlider.value = firePower;
   bombRadiusSlider.value = bombRadius;
 
@@ -92,7 +92,7 @@ bombRadiusSlider.addEventListener("input", function() {
 
 bombDamageSlider.addEventListener("input", function() {
   firePower = parseFloat(this.value).toFixed(2);
-  bombRadius = (45*(Math.sqrt(-firePower + 5))-0.623).toFixed(2);
+  bombRadius = (104-Math.sqrt(2163*firePower)).toFixed(2);
   bombRadiusSlider.value = bombRadius;
   bombDamageSlider.value = firePower;
   document.getElementById("shotSizeDisplay").innerText = `${bombRadius}%`;
