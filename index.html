@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="battleshipGRID.css">
+  <link rel="stylesheet" href="styles.css">
   <title>Battleship with Grid</title>
 </head>
 
-<body style="height: 100%; overflow: hidden" onload = "followMouse();">
+<body style="height: 100%; overflow: hidden;">
   <div id="mainBox">
     <div class="grid-container" id="background" style="background-color: rgba(0,0,0,.3);">
       <div class="item1">
@@ -26,21 +26,22 @@
       <div id="title" class="item3">B A T T L E S H I P</div>  
       <div class="item4">
         <div class="shotMenu1">
-          <div class="sliderHeader1">Power</div>
-          <div class="sliderHeader2">Size</div>
           <div class="sliderDIV1">
-            <input type="range" orient="vertical" min="0" max="5" value="3" step=".1" class="vslider" id="shotPower" oninput="shotPowerDisplay.value = this.value">
+            <label for="shotPower">Bomb Lethality</label>
+            <input type="range" min="0" max="5" value="3.00" step="0.01"  id="shotPower" class="vslider">
           </div>
           <div class="sliderDIV2">  
-            <input type="range" orient="vertical" min="0" max="100" value="40" step="1" class="vslider" id="shotSize" oninput="shotSizeDisplay.value = this.value">
+            <label for="shotSize">Bomb Radius</label>
+            <input type="range" min="1" max="100" value="40.0" step="0.2" id="shotSize" class="vslider">
           </div>
           <div class="sliderOutput1">
             <output id = "shotPowerDisplay">3</output>
           </div>
           <div class="sliderOutput2">
-            <output id = "shotSizeDisplay">40</output>
+            <output id = "shotSizeDisplay">40%</output>
           </div>
         </div>
+        <!---
         <div class="shotMenu2">
           <div class="shotDisplay1">
             Weapon Selector:
@@ -49,6 +50,7 @@
             <canvas id="shotDisplayCanvas" width="300" height="300" style="border:1px solid #000000; background-color: rgba(255,255,255,.6); border-radius: 50px;";></canvas>
           </div>
         </div>
+        --->
         <div class="shotMenu3">
             <div class="narrativeGrid">
               <p2 id="narrative"></p2>
@@ -60,13 +62,7 @@
       </div>
     </div>
   </div>
-
-
-  <div class="wrap">
-    <div id="ball"></div>
-  </div>
-  <script src="battleshipGRID.js"></script>
-
-
+  <div id="ball"></div>
+  <script src="main.js"></script>
 </body>
 </html>
