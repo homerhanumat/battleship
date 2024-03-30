@@ -2,8 +2,6 @@
  * setup
  *************************************************/
 
-
-
 // parameters
 const spaceBetweenOceans = 30;
 const gameBackground = "white";
@@ -273,7 +271,8 @@ function placeShips() {
 function computerShot() {
   function search() {
     // simple choice for now:
-    let computerBombRadius = 50 + Math.random() * 50;
+    //let computerBombRadius = 50 + Math.random() * 50;
+    let computerBombRadius = 100;
   
     let newSpot = false;
     let w = canvas.clientWidth;
@@ -308,41 +307,21 @@ function computerShot() {
     let hit = state.destroyShots[0];
     // get the radius of the circle in which to search:
     let searchRadius = hit.r;
-    // select a radius so that >=1 unit of damage is done on a hit:
-    r = Math.min(searchRadius, radiusFromLethality(1));
+    // select a radius so that >=1 unit of damage is done on a hit,
+    // and is less than half the radius of search-circle:
+    r = Math.min(searchRadius * 0.5, radiusFromLethality(1));
     // so that new shot does not go outside the search-circle,
     // its center should be no further than this amount
     // from the center of the search-circle:
     let maxFromCenter = searchRadius - r;
+    // place the new shot randomly within the search-circle:
     let x, y, angle;
-    if (state.destroyShots.length === 1) {
-      // then this is the first shot in destroy-mode
-      // so just place it:
-      angle = Math.random() * 2 * Math.PI;
-      x = hit.x + maxFromCenter * Math.cos(angle);
-      y = hit.y + maxFromCenter * Math.sin(angle);
-      return {x : x, y : y, r : r};
-    }
-    // if we are here, then there have been previous shots
-    // in destroy-mode, so we must find one that covers
-    // new territory:
-    let newSpot = false;
-    let previousShots = state.destroyShots.slice(1);
-    while(!newSpot) {
-      angle = Math.random() * 2 * Math.PI;
-      x = hit.x + maxFromCenter * Math.cos(angle);
-      y = hit.y + maxFromCenter * Math.sin(angle);
-      const closePreviousShots = previousShots.filter(function(shot) {
-        let distance = dist(x, y, shot.x, shot.y);
-        return distance < shot.r;
-      });
-      if (closePreviousShots.length === 0) {
-        newSpot = true;
-      }
-    }
-    return {x: hit.x, y : hit.y, r : r};
+    angle = Math.random() * 2 * Math.PI;
+    x = hit.x + maxFromCenter * Math.cos(angle);
+    y = hit.y + maxFromCenter * Math.sin(angle);
+    return {x : x, y : y, r : r};
   } else { 
-    // if no previous hit thencarry out random search:
+    // if no previous hit then carry out random search:
     return search();
   }
 }
@@ -376,6 +355,8 @@ function assessDamages(x, y, radius) {
     let attacking = state.shipsUnderAttack.length > 0;
     if (attacking) {
       ships = state.shipsUnderAttack;
+      // NOTE:  we are assuming that while in destroy-mode
+      // no part of the shot goes outside of the search-area
     } else {
       ships = state.pShips.filter(s => s.damage < s.capacity);
     }
