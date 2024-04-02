@@ -2,12 +2,8 @@
  * setup
  *************************************************/
 
-// our goal with this branch is to create a formula
-// linking the square of the bomb radius to the damage
-// in such a way that damage decreases faster than the
-// square of the radius increases.
-
 // parameters
+const spaceBetweenOceans = 30;
 const gameBackground = "white";
 const oceanBackground = "#61cffa";
 const shotMissColor = "white";
@@ -29,6 +25,11 @@ const tempCircleInfo = {
   y : undefined,
   r : undefined
 };
+// initialize sound effects
+const uWin = new Audio("Sounds/uWin.mp3");
+const uLose = new Audio("Sounds/uLoseAlt.mp3");
+const uHit = new Audio("Sounds/uHit.mp3");
+const cHit = new Audio("Sounds/cHit.mp3");
 
 // html elements
 const canvas = document.getElementById("canvas");
@@ -41,42 +42,42 @@ pHistory.addEventListener("change", drawOcean);
 const cHistory = document.getElementById("computer-shots");
 cHistory.addEventListener("change", drawOcean);
 
-// set volume of sound effects when user changes preference
-const audio = document.getElementById("audio-preference");
-audio.addEventListener("change", function() {
-  uWin.volume = audio.checked ? 0.01 : 0;
-  uLose.volume = audio.checked ? 0.5 : 0;
-  uHit.volume = audio.checked ? 0.01 : 0;
-  cHit.volume = audio.checked ? 0.025 : 0;
-});
-// set volume of sound effects when page loads
-window.addEventListener("DOMContentLoaded", function() {
-  uWin.volume = audio.checked ? 0.01 : 0;
-  uLose.volume = audio.checked ? 0.5 : 0;
-  uHit.volume = audio.checked ? 0.01 : 0;
-  cHit.volume = audio.checked ? 0.025 : 0;
-});
-
 const shipReport = document.getElementById("ship-report");
 const narrative = document.getElementById("narrative");
 
+const audio = document.getElementById("audio-preference");
+audio.addEventListener("change", function() { // set volume of sound effects when user changes preference
+  uWin.volume = audio.checked ? 0.01 : 0;
+  uLose.volume = audio.checked ? 0.5 : 0;
+  uHit.volume = audio.checked ? 0.01 : 0;
+  cHit.volume = audio.checked ? 0.025 : 0;
+});
+window.addEventListener("DOMContentLoaded", function() { // set volume of sound effects when page loads
+  uWin.volume = audio.checked ? 0.01 : 0;
+  uLose.volume = audio.checked ? 0.5 : 0;
+  uHit.volume = audio.checked ? 0.01 : 0;
+  cHit.volume = audio.checked ? 0.025 : 0;
+});
 
 const bombRadiusSlider = document.getElementById("shotSize");
 const bombDamageSlider = document.getElementById("shotPower");
 
-// initialize sound effects
-const uWin = new Audio("Sounds/uWin.mp3");
-const uLose = new Audio("Sounds/uLoseAlt.mp3");
-const uHit = new Audio("Sounds/uHit.mp3");
-const cHit = new Audio("Sounds/cHit.mp3");
+let bombRadius = 40;
+let firePower = 3;
 
-let bombRadius = 30;
-let firePower = 3.5;
+function lethalityFromRadius(r) {
+  return (-1/20) * r + 5;
+} // (Math.pow((bombRadius-104),2)/2163).toFixed(2)
+
+
+function radiusFromLethality(l) {
+  return 100 - 20 * l;
+} // (104-Math.sqrt(2163*firePower)).toFixed(2)
 
 bombRadiusSlider.addEventListener("input", function() {
   bombRadius = parseFloat(this.value);
-  firePower = (Math.pow((bombRadius-104),2)/2163).toFixed(2);
-  bombDamageSlider.value = firePower;
+  lethality = lethalityFromRadius(bombRadius);
+  bombDamageSlider.value = lethality;
   bombRadiusSlider.value = bombRadius;
 
   const ballElement = document.getElementById('ball');
@@ -85,18 +86,22 @@ bombRadiusSlider.addEventListener("input", function() {
   ballElement.style.marginTop = -bombRadius + 'px';
   ballElement.style.marginLeft = -bombRadius + 'px';
  
-  document.getElementById("shotPowerDisplay").innerText = firePower;
-  document.getElementById("shotSizeDisplay").innerText = `${bombRadius}%`;
+  document.getElementById("shotPowerDisplay")
+    .innerText = lethality.toFixed(2);
+  document.getElementById("shotSizeDisplay")
+    .innerText = `${bombRadius.toFixed(1)}%`;
   
 });
 
 bombDamageSlider.addEventListener("input", function() {
-  firePower = parseFloat(this.value).toFixed(2);
-  bombRadius = (104-Math.sqrt(2163*firePower)).toFixed(2);
+  lethality = parseFloat(this.value);
+  bombRadius = radiusFromLethality(lethality);
   bombRadiusSlider.value = bombRadius;
-  bombDamageSlider.value = firePower;
-  document.getElementById("shotSizeDisplay").innerText = `${bombRadius}%`;
-  document.getElementById("shotPowerDisplay").innerText = firePower;
+  bombDamageSlider.value = lethality;
+  document.getElementById("shotPowerDisplay")
+    .innerText = lethality.toFixed(2);
+  document.getElementById("shotSizeDisplay")
+    .innerText = `${bombRadius.toFixed(1)}%`;
 
   const ballElement = document.getElementById('ball');
   ballElement.style.height = 2 * bombRadius + 'px';
@@ -162,7 +167,14 @@ const state = {
     }
   ],
   pShots: [],
-  cShots: []
+  cShots: [],
+  // array to hold shot that finds new ships, plus
+  // subsequent shots taken to destroy said ships:
+  destroyShots: [],
+  // array to hold ships to be attacked:
+  shipsUnderAttack: [],
+  // does computer need to repeat its previous shot?
+  repeatShot: false
 };
 
 /*************************************************
@@ -212,7 +224,7 @@ function drawOcean() {
   let w = canvas.clientWidth;
   let h = canvas.clientHeight;
   ctx.clearRect(0, 0, w, h);
-  let bh = (h - 30) / 2;
+  let bh = (h - spaceBetweenOceans) / 2;
   ctx.fillStyle = oceanBackground;
   // top border of computer area:
   ctx.fillRect(0, 0, w, bh);
@@ -253,33 +265,84 @@ function drawOcean() {
 function damage(xs, ys, xb, yb, size, radius) {
   let distance = dist(xs, ys, xb, yb);
   let close = distance < (radius + size);
-  let damage = close ? firePower : 0;
+  let damage = close ? lethalityFromRadius(radius) : 0;
   return {damage : damage, close : close};
 }
 
 function placeShips() {
   let w = canvas.clientWidth;
   let h = canvas.clientHeight;
-  let bh = (h - 30) / 2;
+  let bh = (h - spaceBetweenOceans) / 2;
   for (let ship of state.cShips) {
     ship.x = Math.random() * w;
     ship.y = Math.random() * bh;
   };
   for (let ship of state.pShips) {
     ship.x = Math.random() * w;
-    ship.y = h/2 + 30 + Math.random() * bh;
+    ship.y = h/2 + spaceBetweenOceans / 2 + Math.random() * bh;
   };
 }
 
-// very simple, for now:
+/*****************************************
+ * new computer-shot functions
+ ******************************************/
+
 function computerShot() {
-  const computerBombRadius = 40;  // fixed, for now;
-  let w = canvas.clientWidth;
-  let h = canvas.clientHeight;
-  let bh = (h - bombRadius) / 2;
-  let x = Math.random() * w;
-  let y = bh + computerBombRadius + Math.random() * bh;
-  return {x : x, y : y, r : computerBombRadius};
+  function search() {
+    // simple choice for now:
+    //let computerBombRadius = 50 + Math.random() * 50;
+    let computerBombRadius = 100;
+  
+    let newSpot = false;
+    let w = canvas.clientWidth;
+    let h = canvas.clientHeight;
+    let bh = (h - spaceBetweenOceans) / 2;
+    let x, y;
+    while(!newSpot) {
+      x = Math.random() * w;
+      y = bh + computerBombRadius + Math.random() * bh;
+      const closePreviousShots = state.cShots.filter(function(shot) {
+        let distance = dist(x, y, shot.x, shot.y);
+        return distance < shot.r;
+      });
+      if (closePreviousShots.length === 0) {
+        newSpot = true;
+      }
+    }
+    return({x: x, y : y, r: computerBombRadius})
+  }
+
+  if (state.repeatShot) {
+    let s = state.cShots[state.cShots.length - 1];
+    let shot = {x: s.x, y: s.y, r: s.r};
+    state.repeatShot = false;
+    return(shot);
+  }
+
+  if (state.destroyShots.length > 0) { 
+    // find the search-circle 
+    // (circle in which to search for ships detected but
+    // not yet sunk):
+    let hit = state.destroyShots[0];
+    // get the radius of the circle in which to search:
+    let searchRadius = hit.r;
+    // select a radius so that >=1 unit of damage is done on a hit,
+    // and is less than half the radius of search-circle:
+    r = Math.min(searchRadius * 0.5, radiusFromLethality(1));
+    // so that new shot does not go outside the search-circle,
+    // its center should be no further than this amount
+    // from the center of the search-circle:
+    let maxFromCenter = searchRadius - r;
+    // place the new shot randomly within the search-circle:
+    let x, y, angle;
+    angle = Math.random() * 2 * Math.PI;
+    x = hit.x + maxFromCenter * Math.cos(angle);
+    y = hit.y + maxFromCenter * Math.sin(angle);
+    return {x : x, y : y, r : r};
+  } else { 
+    // if no previous hit then carry out random search:
+    return search();
+  }
 }
 
 function assessDamages(x, y, radius) {
@@ -307,12 +370,24 @@ function assessDamages(x, y, radius) {
       message += "You did not hit anything."
     }
   } else {
-    message += `My bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `
-    let ships = state.pShips.filter(s => s.damage < s.capacity);
+    message += `My bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `;
+    let ships;
+    let attacking = state.shipsUnderAttack.length > 0;
+    if (attacking) {
+      ships = state.shipsUnderAttack;
+      // NOTE:  we are assuming that while in destroy-mode
+      // no part of the shot goes outside of the search-area
+    } else {
+      ships = state.pShips.filter(s => s.damage < s.capacity);
+    }
     for (let ship of ships) {
       let d = damage(ship.x, ship.y, x, y, ship.size, radius);
       if (d.close) {
         hit = true;
+        state.destroyShots.push({ x: x, y: y, r : radius});
+        if (!attacking) {
+          state.shipsUnderAttack.push(ship);
+        }
         ship.damage += d.damage;
         totalDamage += d.damage;
         message += `I hit your ${ship.type}. `;
@@ -320,6 +395,15 @@ function assessDamages(x, y, radius) {
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
           drawShip(ship.x, ship.y, ship.size, true);
+          state.shipsUnderAttack = state.shipsUnderAttack
+            .filter(s => s !== ship);
+          if (state.shipsUnderAttack.length === 0) {
+            state.destroyShots = [];
+          }
+        } else {
+          if (attacking) {
+            state.repeatShot = true;
+          }
         }
       }
     }
@@ -346,8 +430,8 @@ function populateShipReport() {
       `<tr>
         <td>${state.pShips[i].type}</td>
         <td>${state.pShips[i].capacity}</td>
-        <td>${state.pShips[i].damage.toFixed(2)}</td>
-        <td>${state.cShips[i].damage.toFixed(2)}</td>
+        <td>${state.pShips[i].damage}</td>
+        <td>${state.cShips[i].damage}</td>
       </tr>`;
   }
   contents += "</tbody>";
