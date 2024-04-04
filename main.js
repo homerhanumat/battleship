@@ -473,6 +473,14 @@ function allShipsSunk(player) {
   return sunkCount == ships.length;
 }
 
+function sleep(milliseconds) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+}
+
 function processRound(event) {
   checkForWinner();
   if (!state.winner) {
@@ -485,6 +493,7 @@ function processRound(event) {
     state.pShots.push(
       {x: pos.x, y: pos.y, r : bombRadius, hit: hit, damage: damage}
     );
+    sleep(2000);
     state.shooting = "c";
     checkForWinner();
     if (!state.winner) {
