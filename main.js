@@ -90,7 +90,6 @@ bombRadiusSlider.addEventListener("input", function() {
     .innerText = lethality.toFixed(2);
   document.getElementById("shotSizeDisplay")
     .innerText = `${bombRadius.toFixed(1)}%`;
-  
 });
 
 bombDamageSlider.addEventListener("input", function() {
