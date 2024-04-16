@@ -193,6 +193,34 @@ drawOcean();
  * utitlity functions
  ***********************************/
 
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const clickY = e.clientY - rect.top;
+  let radius = 10;
+
+  function animateShot() {
+      drawFilledCircle(clickX, clickY, radius);
+      
+      if (radius < bombRadius) {
+          radius += 1; // Adjust the expansion rate as needed
+          requestAnimationFrame(animateShot); //tell window that animation will be used
+      }
+  }
+
+  animateShot();
+});
+
+//function animateComputerShot() {
+//  let cRadius = 10;
+//  drawFilledCircle(cShot.x, cShot.y, cRadius);
+//
+//  if (cRadius < bombRadius) {
+//    rad += 1; //ajust the expansion rate as needed
+//    requestAnimationFrame(animateComputerShot); //tells window that animation will be used
+//  }
+//}
+
 function drawCircle(x, y, r) {
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2, true);
@@ -498,6 +526,7 @@ function processRound(event) {
     checkForWinner();
     if (!state.winner) {
       let cShot = computerShot();
+      //animateComputerShot();
       drawCircle(cShot.x, cShot.y, cShot.r);
       let computerResults = assessDamages(cShot.x, cShot.y, cShot.r);
       hit = computerResults.hit;
