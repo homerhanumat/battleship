@@ -197,31 +197,22 @@ canvas.addEventListener('click', (e) => {
   const rect = canvas.getBoundingClientRect();
   const clickX = e.clientX - rect.left;
   const clickY = e.clientY - rect.top;
-  let radius = 10;
+  let radius = 5;
 
   function animateShot() {
-      drawFilledCircle(clickX, clickY, radius);
+    ctx.fillStyle = 'white';
+    drawFilledCircle(clickX, clickY, radius);
       
-      if (radius < bombRadius) {
-          radius += 1; // Adjust the expansion rate as needed
-          requestAnimationFrame(animateShot); //tell window that animation will be used
-      }
+    if (radius <= bombRadius) {
+        radius += 1; // Adjust the expansion rate as needed
+        requestAnimationFrame(animateShot); //tell window that animation will be used
+    }
   }
 
   animateShot();
 });
 
-//function animateComputerShot() {
-//  let cRadius = 10;
-//  drawFilledCircle(cShot.x, cShot.y, cRadius);
-//
-//  if (cRadius < bombRadius) {
-//    rad += 1; //ajust the expansion rate as needed
-//    requestAnimationFrame(animateComputerShot); //tells window that animation will be used
-//  }
-//}
-
-function drawCircle(x, y, r) {
+function drawCircle(x, y, r) { //remove this function once computer shots are also animated
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2, true);
   ctx.stroke();
@@ -513,7 +504,7 @@ function processRound(event) {
   checkForWinner();
   if (!state.winner) {
     let pos = getMousePos(canvas, event);
-    drawCircle(pos.x, pos.y, bombRadius);
+    //drawCircle(pos.x, pos.y, bombRadius);
     let userResults = assessDamages(pos.x, pos.y, bombRadius);
     let hit = userResults.hit;
     let damage = userResults.damage;
@@ -526,8 +517,19 @@ function processRound(event) {
     checkForWinner();
     if (!state.winner) {
       let cShot = computerShot();
+      let cRadius = 5;
+
+      function animateComputerShot() {
+        ctx.fillStyle = 'white';
+        drawFilledCircle(cShot.x, cShot.y, cShot.r);
+      
+        if (cRadius < computerBombRadius) {
+          cRadius += 1; //ajust the expansion rate as needed
+          requestAnimationFrame(animateComputerShot); //tells window that animation will be used
+        }
+      }
       //animateComputerShot();
-      drawCircle(cShot.x, cShot.y, cShot.r);
+      drawCircle(cShot.x, cShot.y, cShot.r); //remove this line when computer shots are animated (makes the black outline)
       let computerResults = assessDamages(cShot.x, cShot.y, cShot.r);
       hit = computerResults.hit;
       let damage = computerResults.damage;
