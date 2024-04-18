@@ -64,6 +64,7 @@ const bombDamageSlider = document.getElementById("shotPower");
 
 let bombRadius = 40;
 let firePower = 3;
+let computerBombRadius;
 
 function lethalityFromRadius(r) {
   return (-1/20) * r + 5;
@@ -310,7 +311,7 @@ function computerShot() {
   function search() {
     // simple choice for now:
     //let computerBombRadius = 50 + Math.random() * 50;
-    let computerBombRadius = 100;
+    computerBombRadius = 100;
   
     let newSpot = false;
     let w = canvas.clientWidth;
@@ -348,6 +349,7 @@ function computerShot() {
     // select a radius so that >=1 unit of damage is done on a hit,
     // and is less than half the radius of search-circle:
     r = Math.min(searchRadius * 0.5, radiusFromLethality(1));
+    computerBombRadius = r;
     // so that new shot does not go outside the search-circle,
     // its center should be no further than this amount
     // from the center of the search-circle:
@@ -521,15 +523,16 @@ function processRound(event) {
 
       function animateComputerShot() {
         ctx.fillStyle = 'white';
-        drawFilledCircle(cShot.x, cShot.y, cShot.r);
+        //drawFilledCircle(cShot.x, cShot.y, cShot.r);
       
         if (cRadius < computerBombRadius) {
           cRadius += 1; //ajust the expansion rate as needed
           requestAnimationFrame(animateComputerShot); //tells window that animation will be used
+          drawFilledCircle(cShot.x, cShot.y, cRadius);
         }
       }
-      //animateComputerShot();
-      drawCircle(cShot.x, cShot.y, cShot.r); //remove this line when computer shots are animated (makes the black outline)
+      animateComputerShot();
+      //drawCircle(cShot.x, cShot.y, cShot.r); //remove this line when computer shots are animated (makes the black outline)
       let computerResults = assessDamages(cShot.x, cShot.y, cShot.r);
       hit = computerResults.hit;
       let damage = computerResults.damage;
