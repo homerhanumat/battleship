@@ -523,13 +523,13 @@ function processRound(event) {
         ctx.fillStyle = 'white';
         drawFilledCircle(cShot.x, cShot.y, cShot.r);
       
-        if (cRadius <= computerBombRadius) {
+        if (cRadius < computerBombRadius) {
           cRadius += 1; //ajust the expansion rate as needed
           requestAnimationFrame(animateComputerShot); //tells window that animation will be used
         }
       }
-      animateComputerShot();
-      //drawCircle(cShot.x, cShot.y, cShot.r); //remove this line when computer shots are animated (makes the black outline)
+      //animateComputerShot();
+      drawCircle(cShot.x, cShot.y, cShot.r); //remove this line when computer shots are animated (makes the black outline)
       let computerResults = assessDamages(cShot.x, cShot.y, cShot.r);
       hit = computerResults.hit;
       let damage = computerResults.damage;
