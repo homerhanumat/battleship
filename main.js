@@ -268,18 +268,72 @@ function damage(xs, ys, xb, yb, size, radius) {
   return {damage : damage, close : close};
 }
 
+function damage(xs, ys, xb, yb, size, radius) {
+  let distance = dist(xs, ys, xb, yb);
+  let close = distance < (radius + size);
+  let damage = close ? lethalityFromRadius(radius) : 0;
+  return {damage : damage, close : close};
+}
+
 function placeShips() {
   let w = canvas.clientWidth;
   let h = canvas.clientHeight;
   let bh = (h - spaceBetweenOceans) / 2;
+  let goodPlacementC = false;
+  let goodPlacementP = false;
+  
+  // computer ships
+  while(!goodPlacementC) {
+    for (let ship of state.cShips) {
+      ship.x = Math.random() * w;
+      ship.y = Math.random() * bh;
+  }
+  let farEnoughC = true;
+  let farEnoughFromWallC = true;
   for (let ship of state.cShips) {
-    ship.x = Math.random() * w;
-    ship.y = Math.random() * bh;
-  };
+    // check if ship is to close to wall
+    // compares size and position to see if the ship is to close to the wall
+    if (ship.x - ship.size < 0 || ship.x + ship.size > w) {
+      farEnoughFromWallC = false;
+    } else if (ship.y - ship.size < 0 || ship.y + ship.size > h) {
+      farEnoughFromWallC = false;
+  } 
+    let otherShipsC = state.cShips.filter(s => s !== ship);
+      for(let os in otherShipsC) {
+        let d = dist(ship.x ,ship.y ,os.x ,os.y);
+        if (d < ship.size + os.size) {
+          farEnoughC = false;
+        }
+      }
+  }
+  goodPlacementC = farEnoughC && farEnoughFromWallC;
+}
+
+  // player ships
+  while(!goodPlacementP) {
+    for (let ship of state.pShips) {
+      ship.x = Math.random() * w;
+      ship.y = h/2 + spaceBetweenOceans / 2 + Math.random() * bh;
+  }
+  let farEnoughP = true;
+  let farEnoughFromWallP = true;
   for (let ship of state.pShips) {
-    ship.x = Math.random() * w;
-    ship.y = h/2 + spaceBetweenOceans / 2 + Math.random() * bh;
-  };
+  
+    if (ship.x - ship.size < 0 || ship.x + ship.size > w) {
+      farEnoughFromWallP = false;
+    } else if (ship.y - ship.size < 0 || ship.y + ship.size > h) {
+      farEnoughFromWallP = false;
+  } 
+    let otherShipsP = state.pShips.filter(s => s !== ship);
+      for(let os in otherShipsP) {
+        let d = dist(ship.x ,ship.y ,os.x ,os.y);
+        if (d < ship.size + os.size) {
+          farEnoughP = false;
+        }
+      }
+  }
+  goodPlacementP = farEnoughP && farEnoughFromWallP;
+  }
 }
 
 /*****************************************
