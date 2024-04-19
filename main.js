@@ -64,6 +64,7 @@ const bombDamageSlider = document.getElementById("shotPower");
 
 let bombRadius = 40;
 let firePower = 3;
+let computerBombRadius;
 
 function lethalityFromRadius(r) {
   return (-1/20) * r + 5;
@@ -191,6 +192,23 @@ drawOcean();
 /***********************************
  * utitlity functions
  ***********************************/
+
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const clickX = e.clientX - rect.left;
+  const clickY = e.clientY - rect.top;
+  let radius = 5;
+  function animateShot() {
+    ctx.fillStyle = 'white';
+      
+    if (radius <= bombRadius) {
+        radius += 1; // Adjust the expansion rate as needed
+        requestAnimationFrame(animateShot); //tell window that animation will be used
+        drawFilledCircle(clickX, clickY, radius);
+    }
+  }
+  animateShot();
+});
 
 function drawCircle(x, y, r) {
   ctx.beginPath();
@@ -344,7 +362,7 @@ function computerShot() {
   function search() {
     // simple choice for now:
     //let computerBombRadius = 50 + Math.random() * 50;
-    let computerBombRadius = 100;
+    computerBombRadius = 100;
   
     let newSpot = false;
     let w = canvas.clientWidth;
@@ -382,6 +400,7 @@ function computerShot() {
     // select a radius so that >=1 unit of damage is done on a hit,
     // and is less than half the radius of search-circle:
     r = Math.min(searchRadius * 0.5, radiusFromLethality(1));
+    computerBombRadius = r;
     // so that new shot does not go outside the search-circle,
     // its center should be no further than this amount
     // from the center of the search-circle:
@@ -538,7 +557,6 @@ function processRound(event) {
   checkForWinner();
   if (!state.winner) {
     let pos = getMousePos(canvas, event);
-    drawCircle(pos.x, pos.y, bombRadius);
     let userResults = assessDamages(pos.x, pos.y, bombRadius);
     let hit = userResults.hit;
     let damage = userResults.damage;
@@ -551,7 +569,18 @@ function processRound(event) {
     checkForWinner();
     if (!state.winner) {
       let cShot = computerShot();
-      drawCircle(cShot.x, cShot.y, cShot.r);
+      let cRadius = 5;
+
+      function animateComputerShot() {
+        ctx.fillStyle = 'white';
+
+        if (cRadius < computerBombRadius) {
+          cRadius += 1; //ajust the expansion rate as needed
+          requestAnimationFrame(animateComputerShot); //tells window that animation will be used
+          drawFilledCircle(cShot.x, cShot.y, cRadius);
+        }
+      }
+      animateComputerShot();
       let computerResults = assessDamages(cShot.x, cShot.y, cShot.r);
       hit = computerResults.hit;
       let damage = computerResults.damage;
