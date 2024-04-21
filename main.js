@@ -178,7 +178,7 @@ const state = {
 };
 
 /*************************************************
- * run game
+ * run gamedrawCircle
  *************************************************/
 
 populateNarrative(
@@ -209,12 +209,6 @@ canvas.addEventListener('click', (e) => {
   }
   animateShot();
 });
-
-function drawCircle(x, y, r) {
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2, true);
-  ctx.stroke();
-}
 
 function drawFilledCircle(x, y, r, damage) {
   ctx.beginPath();
