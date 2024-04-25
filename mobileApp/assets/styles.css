@@ -1,0 +1,157 @@
+/* from UI team */
+html {
+  background-image: url('images/battleship-background.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+html,body {
+  margin:0;
+  padding:0;
+}
+
+.logo {
+  position: absolute;
+  width: 25vw;
+  height: auto;
+  top: 5%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#screen-box {
+  box-sizing: border-box;
+  width: 75vh;
+  height: 75vh;
+  background-color: rgb(96, 96, 96);
+  border: 4px solid rgb(96, 96, 96);
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button-container {
+  height: 75vh;
+  z-index: 3;
+}
+
+#button {
+  box-sizing: border-box;
+  width: 90px;
+  height: 90px;
+  margin: 10px;
+  background-color: rgb(207, 207, 207);
+  border: 4px solid rgb(96, 96, 96);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#button:first-child {
+  margin-top: 0;
+}
+
+i {
+  color: #606060;
+  font-size: 4rem;
+  margin: 0;
+}
+
+.empty-container {
+  width: 110px;
+}
+
+#menu-container {
+  position: absolute;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, .25);
+  z-index: 2;
+}
+
+.menuScreen {
+  box-sizing: border-box;
+  width: 75vh;
+  height: 75vh;
+  background-color: rgb(96, 96, 96);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+/* sliders */
+.vslider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 30rem;
+  height: 1.5rem;
+  background: #a09f9f;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: -12.5rem;
+  right: 0px;
+  /*transform:rotate(270deg);*/
+  margin: auto;
+  border-radius: 10px;
+}
+.vslider:hover {
+  opacity: 1;
+}
+.vslider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 4rem;
+  background: rgb(58, 58, 58);
+  cursor: pointer;
+}
+.vslider::-moz-range-thumb {
+  width: 25px;
+  height: 4rem;
+  cursor: pointer;
+}
+
+/* report on ships */
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 10px;
+}
+td, th {
+  border: 1px solid black;
+  text-align: left;
+  padding: 8px;
+}
+tr:nth-child(even) {
+  background-color: #dddddd
+}
+
+#ball {
+  width: 0px;
+  height: 0px;
+  background: none;
+  border: 1px solid rgb(255, 255, 255);
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 100;
+}
