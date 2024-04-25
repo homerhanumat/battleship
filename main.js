@@ -36,6 +36,47 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 canvas.addEventListener("click", processRound);
 
+// Ball Div follows mouse
+// (Dr. White modifies Samuel's implementation.)
+
+// These event listeners keep track of whether the mouse is on the canvas.
+// In a subsequent event listener we will set the ball visibility to 
+// hidden or visible, depending on whether or not we are in the canvas.
+let mouseOnCanvas = false;
+canvas.addEventListener("mouseover", function (){
+  console.log("entered canvas");
+  mouseOnCanvas = true;
+});
+canvas.addEventListener("mouseout", function (){
+  console.log("exited canvas");
+  mouseOnCanvas = false;
+});
+
+// this listener makes the ball follow the mouse:
+window.addEventListener('mousemove', function (e) {
+  let x = e.clientX || e.pageX;
+  let y = e.clientY || e.pageY;
+  const ball = document.getElementById('ball');
+  ball.style.width = `${parseInt(2 * bombRadius)}px`;
+  ball.style.height = `${parseInt(2 * bombRadius)}px`;
+  // I messed around a bit and found that an extra 8 pixels
+  // makes the following ball center on the mouse:
+  ball.style.left = `${parseInt(x - bombRadius)}px`;
+  ball.style.top = `${parseInt(y - bombRadius)}px`;
+  // make sure no margins or padding puts the ball off-center:
+  ball.style.margin = "0px";
+  ball.style.padding = "0px";
+  // Finally, determine whether to show the ball.
+  // (It should show if the mouse is over the canvas and 
+  // there the game is still on.)
+  // Note that the ball will show, and shots are recorded,
+  // even if the user is in his/her own ocean.  If we want
+  // this behavior, should we not also make it possible
+  // to damage one's own ship?
+  console.log(ball.style.visibility);
+  ball.style.visibility = mouseOnCanvas & !state.winner ? "visible" : "hidden";
+});
+
 const pHistory = document.getElementById("user-shots");
 pHistory.addEventListener("change", drawOcean);
 
@@ -215,7 +256,7 @@ canvas.addEventListener('click', (e) => {
     ctx.fillStyle = 'white';
       
     if (radius <= bombRadius) {
-        radius += 1; // Adjust the expansion rate as needed
+        radius += 2; // Adjust the expansion rate as needed
         requestAnimationFrame(animateShot); //tell window that animation will be used
         drawFilledCircle(clickX, clickY, radius);
     }
@@ -587,7 +628,7 @@ function processRound(event) {
         ctx.fillStyle = 'white';
 
         if (cRadius < computerBombRadius) {
-          cRadius += 1; //ajust the expansion rate as needed
+          cRadius += 2; //ajust the expansion rate as needed
           requestAnimationFrame(animateComputerShot); //tells window that animation will be used
           drawFilledCircle(cShot.x, cShot.y, cRadius);
         }
@@ -618,46 +659,7 @@ function processRound(event) {
   }
 }
 
-// Ball Div follows mouse
-// (Dr. White modifies Samuel's implementation.)
 
-// These event listeners keep track of whether the mouse is on the canvas.
-// In a subsequent event listener we will set the ball visibility to 
-// hidden or visible, depending on whether or not we are in the canvas.
-let mouseOnCanvas = false;
-canvas.addEventListener("mouseover", function (){
-  console.log("entered canvas");
-  mouseOnCanvas = true;
-});
-canvas.addEventListener("mouseout", function (){
-  console.log("exited canvas");
-  mouseOnCanvas = false;
-});
-
-// this listener makes the ball follow the mouse:
-window.addEventListener('mousemove', function (e) {
-  let x = e.clientX || e.pageX;
-  let y = e.clientY || e.pageY;
-
-  const ball = document.getElementById('ball');
-  ball.style.width = `${parseInt(2 * bombRadius)}px`;
-  ball.style.height = `${parseInt(2 * bombRadius)}px`;
-  // I messed around a bit and found that an extra 8 pixels
-  // makes the following ball center on the mouse:
-  ball.style.left = `${parseInt(x - bombRadius - 8)}px`;
-  ball.style.top = `${parseInt(y - bombRadius) - 8}px`;
-  // make sure no margins or padding puts the ball off-center:
-  ball.style.margin = "0px";
-  ball.style.padding = "0px";
-  // Finally, determine whether to show the ball.
-  // (It should show if the mouse is over the canvas and 
-  // there the game is still on.)
-  // Note that the ball will show, and shots are recorded,
-  // even if the user is in his/her own ocean.  If we want
-  // this behavior, should we not also make it possible
-  // to damage one's own ship?
-  ball.style.visibility = mouseOnCanvas & !state.winner ? "visible" : "hidden";
-});
 
 // UI team button function
 // See 113 for other UI stuff
