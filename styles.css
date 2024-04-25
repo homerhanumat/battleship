@@ -44,7 +44,7 @@ html,body {
   z-index: 3;
 }
 
-#button {
+#button-gear, #button-info {
   box-sizing: border-box;
   width: 90px;
   height: 90px;

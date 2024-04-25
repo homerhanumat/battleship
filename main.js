@@ -9,6 +9,8 @@ const oceanBackground = "#61cffa";
 const shotMissColor = "white";
 const shotHitColor = "red";
 const maxDamage = 2 + 3 + 5;
+// the following global will be changed at game outset:
+let maxBombRadius = 30;
 const shipSizes = {
   Destroyer: 3,
   Cruiser: 6,
@@ -159,7 +161,8 @@ let screenBox = document.getElementById("screen-box");
 function resizeCanvas() {
   canvas.width = screenBox.clientWidth - 10;
   canvas.height = screenBox.clientHeight - 10;
-  drawOcean();
+  // HSW:  this is not needed:
+  //drawOcean();
 }
 
 // game state:
@@ -663,10 +666,11 @@ function processRound(event) {
 
 // UI team button function
 // See 113 for other UI stuff
-let buttonDiv = document.getElementById("button");
+let buttonGear = document.getElementById("button-gear");
         let menuDiv = document.getElementById("menu-container");
         let openClose = function() {
-            if (menuDiv.style.display == "none") {
+          console.log(menuDiv.style.display);
+            if (menuDiv.style.display == "" || menuDiv.style.display == "none") {
                 menuDiv.style.display = "flex";
             } else {
                 menuDiv.style.display = "none";
@@ -674,4 +678,4 @@ let buttonDiv = document.getElementById("button");
         }
 
         window.addEventListener('resize', resizeCanvas);
-        buttonDiv.addEventListener("click", openClose);
+        buttonGear.addEventListener("click", openClose);
