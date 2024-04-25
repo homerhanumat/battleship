@@ -558,7 +558,7 @@ function processRound(event) {
     state.pShots.push(
       {x: pos.x, y: pos.y, r : bombRadius, hit: hit, damage: damage}
     );
-    sleep(2000);
+    //sleep(2000);
     state.shooting = "c";
     checkForWinner();
     if (!state.winner) {
