@@ -110,6 +110,17 @@ bombDamageSlider.addEventListener("input", function() {
   ballElement.style.marginLeft = -bombRadius + 'px';
 });
 
+// UI team: canvas resizing function
+// See line 198 for called function and 665 for button stuff
+
+let screenBox = document.getElementById("screen-box");
+
+function resizeCanvas() {
+  canvas.width = screenBox.clientWidth - 10;
+  canvas.height = screenBox.clientHeight - 10;
+  drawOcean();
+}
+
 // game state:
 const state = {
   shooting : "u",
@@ -180,6 +191,8 @@ const state = {
 /*************************************************
  * run gamedrawCircle
  *************************************************/
+
+resizeCanvas();
 
 populateNarrative(
   `Shoot by clicking in my field (upper half).<br>
@@ -530,6 +543,11 @@ function checkForWinner() {
   }
 }
 
+/* UI change: sets canvas size
+resizeCanvas();
+
+*/
+
 function allShipsSunk(player) {
   let ships = (player == "u") ? state.pShips : state.cShips;
   let sunkCount = 0;
@@ -641,4 +659,17 @@ window.addEventListener('mousemove', function (e) {
   ball.style.visibility = mouseOnCanvas & !state.winner ? "visible" : "hidden";
 });
 
+// UI team button function
+// See 113 for other UI stuff
+let buttonDiv = document.getElementById("button");
+        let menuDiv = document.getElementById("menu-container");
+        let openClose = function() {
+            if (menuDiv.style.display == "none") {
+                menuDiv.style.display = "flex";
+            } else {
+                menuDiv.style.display = "none";
+            }
+        }
 
+        window.addEventListener('resize', resizeCanvas);
+        buttonDiv.addEventListener("click", openClose);

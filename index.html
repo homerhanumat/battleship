@@ -1,106 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="styles.css" />
-    <title>Battleship with Grid</title>
-  </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 
-  <body style="height: 100%; overflow: hidden">
-    <div id="mainBox">
-      <div
-        class="grid-container"
-        id="background"
-        style="background-color: rgba(0, 0, 0, 0.3)"
-      >
-        <div class="item1">
-          <canvas
-            id="canvas"
-            width="750"
-            height="750"
-            style="border: 1px solid #000000"
-          ></canvas>
+    <style>
+
+        html {
+            background-image: url('images/battleship-background.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        html,body {
+            margin:0;
+            padding:0;
+        }
+
+        .logo {
+            position: absolute;
+            width: 25vw;
+            height: auto;
+            top: 5%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #screen-box {
+            box-sizing: border-box;
+            width: 75vh;
+            height: 75vh;
+            background-color: rgb(96, 96, 96);
+            border: 4px solid rgb(96, 96, 96);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .button-container {
+            height: 75vh;
+            z-index: 3;
+        }
+
+        #button {
+            box-sizing: border-box;
+            width: 90px;
+            height: 90px;
+            margin: 10px;
+            background-color: rgb(207, 207, 207);
+            border: 4px solid rgb(96, 96, 96);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #button:first-child {
+            margin-top: 0;
+        }
+
+        i {
+            color: #606060;
+            font-size: 4rem;
+            margin: 0;
+        }
+        
+        .empty-container {
+            width: 110px;
+        }
+
+        #menu-container {
+            position: absolute;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, .25);
+            z-index: 2;
+        }
+
+        .menuScreen {
+            box-sizing: border-box;
+            width: 75vh;
+            height: 75vh;
+            background-color: rgb(96, 96, 96);
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+    </style>
+</head>
+<body>
+    <img src="images/battleship_logo.png" alt="BATTLESHIP" class="logo">
+    <div class="container">
+        <div class="button-container">
+            <div id="button">
+                <i class="fa-solid fa-gear"></i>
+            </div>
+            <div id="button">
+                <i class="fa-solid fa-info"></i>
+            </div>
         </div>
-        <div class="item2" id="shotHistory">
-          <fieldset id="fieldset">
-            <legend>Shot history:</legend>
-            <input type="checkbox" id="user-shots" name="user-shots" checked />
-            <label for="user-shots">Enable your shot history</label>
-            <br />
-            <input
-              type="checkbox"
-              id="computer-shots"
-              name="computer-shots"
-              checked
-            />
-            <label for="computer-shots">Enable opponent's shot history</label>
-            <br />
-            <input
-              type="checkbox"
-              id="audio-preference"
-              name="audio-preference"
-              checked
-            />
-            <label for="audio-preference">Disable game sounds</label>
-          </fieldset>
+        <div id="screen-box">
+            <canvas id="canvas" width="900" height="900" style="border:1px solid #000000;"></canvas>
         </div>
-        <div id="title" class="item3">B A T T L E S H I P</div>
-        <div class="item4">
-          <div class="shotMenu1">
-            <div class="sliderDIV1">
-              <label for="shotPower">Bomb Power</label>
-              <input
-                type="range"
-                min="0.01"
-                max="4.99"
-                value="1.35"
-                step=".01"
-                id="shotPower"
-                class="vslider"
-              />
-            </div>
-            <div class="sliderDIV2">
-              <label for="shotSize">Bomb Radius</label>
-              <input
-                type="range"
-                min="0.1"
-                max="99.8"
-                value="50"
-                step=".01"
-                id="shotSize"
-                class="vslider"
-              />
-            </div>
-            <div class="sliderOutput1">
-              <output id="shotPowerDisplay">1.35</output>
-            </div>
-            <div class="sliderOutput2">
-              <output id="shotSizeDisplay">50%</output>
-            </div>
-          </div>
-          <!---
-        <div class="shotMenu2">
-          <div class="shotDisplay1">
-            Weapon Selector:
-          </div>
-          <div class="shotDisplay2">
-            <canvas id="shotDisplayCanvas" width="300" height="300" style="border:1px solid #000000; background-color: rgba(255,255,255,.6); border-radius: 50px;";></canvas>
-          </div>
-        </div>
-        --->
-          <div class="shotMenu3">
-            <div class="narrativeGrid">
-              <p2 id="narrative"></p2>
-            </div>
-            <div class="shipReport">
-              <table id="ship-report"></table>
-            </div>
-          </div>
-        </div>
-      </div>
+        <div class="empty-container"></div>
     </div>
-    <div id="ball"></div>
+    <div id="menu-container">
+        <div class="menuScreen">
+            <div class="item2" id="shotHistory">
+                <fieldset id="fieldset">
+                  <legend>Shot history:</legend>
+                    <input type="checkbox" id="user-shots" name="user-shots" checked/>
+                      <label for="user-shots">Enable your shot history</label>
+                      <br>
+                       <input type="checkbox" id="computer-shots" name="computer-shots" checked/>
+                      <label for="computer-shots">Enable opponent's shot history</label>
+                      <br>
+                      <input type="checkbox" id="audio-preference" name="audio-preference" checked/>
+                      <label for="audio-preference">Disable game sounds</label>
+                </fieldset>
+                <div class="item4">
+                    <div class="shotMenu1">
+                      <div class="sliderDIV1">
+                        <label for="shotPower">Bomb Power</label>
+                        <input type="range" min="0.01" max="4.99" value="1.35" step=".01"  id="shotPower" class="vslider">
+                      </div>
+                      <div class="sliderDIV2">  
+                        <label for="shotSize">Bomb Radius</label>
+                        <input type="range" min="0.1" max="99.8" value="50" step=".01"  id="shotSize" class="vslider">
+                      </div>
+                      <div class="sliderOutput1">
+                        <output id = "shotPowerDisplay">1.35</output>
+                      </div>
+                      <div class="sliderOutput2">
+                        <output id = "shotSizeDisplay">50%</output>
+                      </div>
+                    </div>
+                    <div class="shotMenu3">
+                        <div class="narrativeGrid">
+                          <p2 id="narrative"></p2>
+                        </div>
+                        <div class="shipReport">
+                          <table id="ship-report"></table>
+                        </div>
+                    </div>
+        </div>
+    </div>
+
     <script src="main.js"></script>
-  </body>
+    <script src="https://kit.fontawesome.com/40df24b4fa.js" crossorigin="anonymous"></script>
+</body>
 </html>
