@@ -106,6 +106,7 @@ const bombDamageSlider = document.getElementById("shotPower");
 let bombRadius = 40;
 let firePower = 3;
 let computerBombRadius;
+let stillExpanding;
 
 function lethalityFromRadius(r) {
   return (-1/20) * r + 5;
@@ -256,10 +257,12 @@ canvas.addEventListener('click', (e) => {
     ctx.fillStyle = 'white';
       
     if (radius <= bombRadius) {
-        radius += 2; // Adjust the expansion rate as needed
-        requestAnimationFrame(animateShot); //tell window that animation will be used
-        drawFilledCircle(clickX, clickY, radius);
+      radius += 2; // Adjust the expansion rate as needed
+      requestAnimationFrame(animateShot); //tell window that animation will be used
+      drawFilledCircle(clickX, clickY, radius);
+      stillExpanding = true;
     }
+    stillExpanding = false;
   }
   animateShot();
 });
@@ -481,9 +484,11 @@ function assessDamages(x, y, radius) {
         message += `You hit my ${ship.type}. `;
         cHit.play();
       }
-      if (ship.damage >= ship.capacity) {
-        message += `You sunk my ${ship.type}! `;
-        drawShip(ship.x, ship.y, ship.size, true);
+      if (stillExpanding = false) {
+        if (ship.damage >= ship.capacity) {
+          message += `You sunk my ${ship.type}! `;
+          drawShip(ship.x, ship.y, ship.size, true);
+        }
       }
     }
     if (!hit) {
