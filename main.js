@@ -9,8 +9,6 @@ const oceanBackground = "#61cffa";
 const shotMissColor = "white";
 const shotHitColor = "red";
 const maxDamage = 2 + 3 + 5;
-// the following global will be changed at game outset:
-let maxBombRadius = 30;
 const shipSizes = {
   Destroyer: 3,
   Cruiser: 6,
@@ -61,21 +59,11 @@ window.addEventListener('mousemove', function (e) {
   const ball = document.getElementById('ball');
   ball.style.width = `${parseInt(2 * bombRadius)}px`;
   ball.style.height = `${parseInt(2 * bombRadius)}px`;
-  // I messed around a bit and found that an extra 8 pixels
-  // makes the following ball center on the mouse:
   ball.style.left = `${parseInt(x - bombRadius)}px`;
   ball.style.top = `${parseInt(y - bombRadius)}px`;
   // make sure no margins or padding puts the ball off-center:
   ball.style.margin = "0px";
   ball.style.padding = "0px";
-  // Finally, determine whether to show the ball.
-  // (It should show if the mouse is over the canvas and 
-  // there the game is still on.)
-  // Note that the ball will show, and shots are recorded,
-  // even if the user is in his/her own ocean.  If we want
-  // this behavior, should we not also make it possible
-  // to damage one's own ship?
-  console.log(ball.style.visibility);
   ball.style.visibility = mouseOnCanvas & !state.winner ? "visible" : "hidden";
 });
 
@@ -105,18 +93,20 @@ window.addEventListener("DOMContentLoaded", function() { // set volume of sound 
 const bombRadiusSlider = document.getElementById("shotSize");
 const bombDamageSlider = document.getElementById("shotPower");
 
+// the following globals will be changed at game outset:
+let maxBombRadius = 100;
 let bombRadius = 40;
 let firePower = 3;
 let computerBombRadius;
 
 function lethalityFromRadius(r) {
-  return (-1/20) * r + 5;
-} // (Math.pow((bombRadius-104),2)/2163).toFixed(2)
+  return (-5/maxBombRadius) * r + 5;
+}
 
 
 function radiusFromLethality(l) {
-  return 100 - 20 * l;
-} // (104-Math.sqrt(2163*firePower)).toFixed(2)
+  return maxBombRadius - maxBombRadius / 5 * l;
+}
 
 bombRadiusSlider.addEventListener("input", function() {
   bombRadius = parseFloat(this.value);
@@ -161,8 +151,15 @@ let screenBox = document.getElementById("screen-box");
 function resizeCanvas() {
   canvas.width = screenBox.clientWidth - 10;
   canvas.height = screenBox.clientHeight - 10;
-  // HSW:  this is not needed:
-  //drawOcean();
+  // set maximum bomb radius:
+  maxBombRadius = canvas.width * 0.125;
+  bombRadiusSlider.max = radiusFromLethality(0.01);
+  bombRadiusSlider.min = radiusFromLethality(5);
+  bombDamageSlider.max = 5;
+  bombDamageSlider.min = 0.01;
+  bombRadiusSlider.value = radiusFromLethality(0.01);
+  bombDamageSlider.value = 0.01;
+  bombRadius = radiusFromLethality(0.01);
 }
 
 // game state:
@@ -233,7 +230,7 @@ const state = {
 };
 
 /*************************************************
- * run gamedrawCircle
+ * run game
  *************************************************/
 
 resizeCanvas();
@@ -256,21 +253,20 @@ canvas.addEventListener('click', (e) => {
   const clickY = e.clientY - rect.top;
   let radius = 5;
   function animateShot() {
-    ctx.fillStyle = 'white';
-      
     if (radius <= bombRadius) {
         radius += 2; // Adjust the expansion rate as needed
         requestAnimationFrame(animateShot); //tell window that animation will be used
-        drawFilledCircle(clickX, clickY, radius);
+        drawFilledCircle(clickX, clickY, radius, 0, false);
     }
   }
   animateShot();
 });
 
-function drawFilledCircle(x, y, r, damage) {
+function drawFilledCircle(x, y, r, damage, hit) {
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2, true);
-  ctx.fillStyle = `rgba(255, 0, 0, ${damage / maxDamage})`;
+  let opacity = hit ? Math.max(damage / maxDamage, 0.1) : 0;
+  ctx.fillStyle = `rgba(255, 0, 0, ${opacity})`;
   ctx.fill();
   ctx.stroke();
 }
@@ -307,13 +303,13 @@ function drawOcean() {
   // user shots (if requested):
   if (pHistory.checked) {
     for (let shot of state.pShots) {
-      drawFilledCircle(shot.x, shot.y, shot.r, shot.damage);
+      drawFilledCircle(shot.x, shot.y, shot.r, shot.damage, shot.hit);
     }
   }
   // user shots (if requested):
   if (cHistory.checked) {
     for (let shot of state.cShots) {
-      drawFilledCircle(shot.x, shot.y, shot.r, shot.damage);
+      drawFilledCircle(shot.x, shot.y, shot.r, shot.damage, shot.hit);
     }
   }
   // user ships:
@@ -337,13 +333,6 @@ function damage(xs, ys, xb, yb, size, radius) {
   return {damage : damage, close : close};
 }
 
-function damage(xs, ys, xb, yb, size, radius) {
-  let distance = dist(xs, ys, xb, yb);
-  let close = distance < (radius + size);
-  let damage = close ? lethalityFromRadius(radius) : 0;
-  return {damage : damage, close : close};
-}
-
 function placeShips() {
   let w = canvas.clientWidth;
   let h = canvas.clientHeight;
@@ -357,14 +346,15 @@ function placeShips() {
       ship.x = Math.random() * w;
       ship.y = Math.random() * bh;
   }
+  let padding = 5;
   let farEnoughC = true;
   let farEnoughFromWallC = true;
   for (let ship of state.cShips) {
     // check if ship is to close to wall
     // compares size and position to see if the ship is to close to the wall
-    if (ship.x - ship.size < 0 || ship.x + ship.size > w) {
+    if (ship.x - ship.size < padding || ship.x + ship.size > w - padding) {
       farEnoughFromWallC = false;
-    } else if (ship.y - ship.size < 0 || ship.y + ship.size > h) {
+    } else if (ship.y - ship.size < padding || ship.y + ship.size > h - padding) {
       farEnoughFromWallC = false;
   } 
     let otherShipsC = state.cShips.filter(s => s !== ship);
@@ -412,8 +402,7 @@ function placeShips() {
 function computerShot() {
   function search() {
     // simple choice for now:
-    //let computerBombRadius = 50 + Math.random() * 50;
-    computerBombRadius = 100;
+    computerBombRadius = maxBombRadius;
   
     let newSpot = false;
     let w = canvas.clientWidth;
@@ -553,8 +542,8 @@ function populateShipReport() {
       `<tr>
         <td>${state.pShips[i].type}</td>
         <td>${state.pShips[i].capacity}</td>
-        <td>${state.pShips[i].damage}</td>
-        <td>${state.cShips[i].damage}</td>
+        <td>${state.pShips[i].damage.toFixed(2)}</td>
+        <td>${state.cShips[i].damage.toFixed(2)}</td>
       </tr>`;
   }
   contents += "</tbody>";
@@ -586,11 +575,6 @@ function checkForWinner() {
     state.winner = state.shooting == "u" ? "c" : "u";
   }
 }
-
-/* UI change: sets canvas size
-resizeCanvas();
-
-*/
 
 function allShipsSunk(player) {
   let ships = (player == "u") ? state.pShips : state.cShips;
@@ -628,12 +612,10 @@ function processRound(event) {
       let cRadius = 5;
 
       function animateComputerShot() {
-        ctx.fillStyle = 'white';
-
         if (cRadius < computerBombRadius) {
-          cRadius += 2; //ajust the expansion rate as needed
+          cRadius += 2; //adjust the expansion rate as needed
           requestAnimationFrame(animateComputerShot); //tells window that animation will be used
-          drawFilledCircle(cShot.x, cShot.y, cRadius);
+          drawFilledCircle(cShot.x, cShot.y, cRadius, 0, false);
         }
       }
       animateComputerShot();
@@ -667,15 +649,14 @@ function processRound(event) {
 // UI team button function
 // See 113 for other UI stuff
 let buttonGear = document.getElementById("button-gear");
-        let menuDiv = document.getElementById("menu-container");
-        let openClose = function() {
-          console.log(menuDiv.style.display);
-            if (menuDiv.style.display == "" || menuDiv.style.display == "none") {
-                menuDiv.style.display = "flex";
-            } else {
-                menuDiv.style.display = "none";
-            }
-        }
+let menuDiv = document.getElementById("menu-container");
+let openClose = function() {
+  if (menuDiv.style.display == "" || menuDiv.style.display == "none") {
+    menuDiv.style.display = "flex";
+  } else {
+    menuDiv.style.display = "none";
+  }
+}
 
-        window.addEventListener('resize', resizeCanvas);
-        buttonGear.addEventListener("click", openClose);
+window.addEventListener('resize', resizeCanvas);
+buttonGear.addEventListener("click", openClose);
