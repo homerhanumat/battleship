@@ -8,6 +8,7 @@ html {
 html,body {
   margin:0;
   padding:0;
+  overflow: hidden;
 }
 
 .logo {
@@ -44,7 +45,7 @@ html,body {
   z-index: 3;
 }
 
-#button-gear, #button-info {
+#button-gear, #button-slider {
   box-sizing: border-box;
   width: 90px;
   height: 90px;
@@ -93,23 +94,21 @@ i {
 }
 
 /* sliders */
+.shotMenu1 {
+  display: flex;
+}
+
 .vslider {
   -webkit-appearance: none;
   appearance: none;
-  width: 30rem;
+  width: 25rem;
   height: 1.5rem;
   background: #a09f9f;
   outline: none;
   opacity: 0.7;
   -webkit-transition: .2s;
   transition: opacity .2s;
-  position: absolute;
-  top: 0px;
-  bottom: 0px;
-  left: -12.5rem;
-  right: 0px;
-  /*transform:rotate(270deg);*/
-  margin: auto;
+  margin: 10px;
   border-radius: 10px;
 }
 .vslider:hover {
@@ -127,6 +126,13 @@ i {
   width: 25px;
   height: 4rem;
   cursor: pointer;
+}
+
+#slider-menu {
+  display: none;
+  position: absolute;
+  bottom: 5px;
+  background-color: #606060;
 }
 
 /* report on ships */

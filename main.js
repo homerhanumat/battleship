@@ -646,17 +646,34 @@ function processRound(event) {
 
 
 
-// UI team button function
+// UI team button stuff
 // See 113 for other UI stuff
+
+// First button (settings):
 let buttonGear = document.getElementById("button-gear");
 let menuDiv = document.getElementById("menu-container");
-let openClose = function() {
-  if (menuDiv.style.display == "" || menuDiv.style.display == "none") {
-    menuDiv.style.display = "flex";
+
+// Second button (sliders):
+let sliderButton = document.getElementById("button-slider");
+let sliderMenu = document.getElementById("slider-menu");
+
+
+let openClose = function(openContainer) {
+  console.log(openContainer);
+  console.log(openContainer.style.display);
+  if (openContainer.style.display == "" || openContainer.style.display == "none") {
+    openContainer.style.display = "flex";
   } else {
-    menuDiv.style.display = "none";
+    openContainer.style.display = "none";
   }
 }
 
 window.addEventListener('resize', resizeCanvas);
-buttonGear.addEventListener("click", openClose);
+
+buttonGear.addEventListener("click", function() {
+  openClose(menuDiv);
+});
+
+sliderButton.addEventListener("click", function() {
+  openClose(sliderMenu);
+});
