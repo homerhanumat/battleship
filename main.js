@@ -90,7 +90,6 @@ window.addEventListener("DOMContentLoaded", function() { // set volume of sound 
   cHit.volume = audio.checked ? 0.025 : 0;
 });
 
-const bombRadiusSlider = document.getElementById("shotSize");
 const bombDamageSlider = document.getElementById("shotPower");
 
 // the following globals will be changed at game outset:
@@ -108,33 +107,12 @@ function radiusFromLethality(l) {
   return maxBombRadius - maxBombRadius / 5 * l;
 }
 
-bombRadiusSlider.addEventListener("input", function() {
-  bombRadius = parseFloat(this.value);
-  lethality = lethalityFromRadius(bombRadius);
-  bombDamageSlider.value = lethality;
-  bombRadiusSlider.value = bombRadius;
-
-  const ballElement = document.getElementById('ball');
-  ballElement.style.height = 2 * bombRadius + 'px';
-  ballElement.style.width = 2 * bombRadius + 'px';
-  ballElement.style.marginTop = -bombRadius + 'px';
-  ballElement.style.marginLeft = -bombRadius + 'px';
- 
-  document.getElementById("shotPowerDisplay")
-    .innerText = lethality.toFixed(2);
-  document.getElementById("shotSizeDisplay")
-    .innerText = `${bombRadius.toFixed(1)}%`;
-});
-
 bombDamageSlider.addEventListener("input", function() {
   lethality = parseFloat(this.value);
   bombRadius = radiusFromLethality(lethality);
-  bombRadiusSlider.value = bombRadius;
   bombDamageSlider.value = lethality;
   document.getElementById("shotPowerDisplay")
     .innerText = lethality.toFixed(2);
-  document.getElementById("shotSizeDisplay")
-    .innerText = `${bombRadius.toFixed(1)}%`;
 
   const ballElement = document.getElementById('ball');
   ballElement.style.height = 2 * bombRadius + 'px';
@@ -153,11 +131,8 @@ function resizeCanvas() {
   canvas.height = screenBox.clientHeight - 10;
   // set maximum bomb radius:
   maxBombRadius = canvas.width * 0.125;
-  bombRadiusSlider.max = radiusFromLethality(0.01);
-  bombRadiusSlider.min = radiusFromLethality(5);
   bombDamageSlider.max = 5;
   bombDamageSlider.min = 0.01;
-  bombRadiusSlider.value = radiusFromLethality(0.01);
   bombDamageSlider.value = 0.01;
   bombRadius = radiusFromLethality(0.01);
 }
@@ -256,11 +231,19 @@ canvas.addEventListener('click', (e) => {
     if (radius <= bombRadius) {
         radius += 2; // Adjust the expansion rate as needed
         requestAnimationFrame(animateShot); //tell window that animation will be used
-        drawFilledCircle(clickX, clickY, radius, 0, false);
+        drawAnimatedCircle(clickX, clickY, radius);
     }
   }
   animateShot();
 });
+
+function drawAnimatedCircle(x, y, r) {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2, true);
+  ctx.fillStyle = "white";
+  ctx.fill();
+  ctx.stroke();
+}
 
 function drawFilledCircle(x, y, r, damage, hit) {
   ctx.beginPath();
@@ -615,7 +598,7 @@ function processRound(event) {
         if (cRadius < computerBombRadius) {
           cRadius += 2; //adjust the expansion rate as needed
           requestAnimationFrame(animateComputerShot); //tells window that animation will be used
-          drawFilledCircle(cShot.x, cShot.y, cRadius, 0, false);
+          drawAnimatedCircle(cShot.x, cShot.y, cRadius);
         }
       }
       animateComputerShot();
