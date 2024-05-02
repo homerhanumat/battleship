@@ -651,7 +651,7 @@ function processRound(event) {
 
 // First button (settings):
 let buttonGear = document.getElementById("button-gear");
-let menuDiv = document.getElementById("menu-container");
+let menuDiv = document.getElementById("menuContainer");
 
 // Second button (sliders):
 let sliderButton = document.getElementById("button-slider");

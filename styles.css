@@ -72,7 +72,7 @@ i {
   width: 110px;
 }
 
-#menu-container {
+#menuContainer {
   position: absolute;
   top: 0;
   width: 100vw;
@@ -94,9 +94,6 @@ i {
 }
 
 /* sliders */
-.shotMenu1 {
-  display: flex;
-}
 
 .vslider {
   -webkit-appearance: none;
@@ -111,9 +108,11 @@ i {
   margin: 10px;
   border-radius: 10px;
 }
+
 .vslider:hover {
   opacity: 1;
 }
+
 .vslider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -122,6 +121,7 @@ i {
   background: rgb(58, 58, 58);
   cursor: pointer;
 }
+
 .vslider::-moz-range-thumb {
   width: 25px;
   height: 4rem;
@@ -131,8 +131,14 @@ i {
 #slider-menu {
   display: none;
   position: absolute;
-  bottom: 5px;
+  left: 50%;
+  transform: translate(-50%);
+  bottom: 10px;
   background-color: #606060;
+}
+
+.power-slider {
+  display: none;
 }
 
 /* report on ships */
