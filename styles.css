@@ -74,9 +74,9 @@ i {
 
 #menuContainer {
   position: absolute;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
+  box-sizing: border-box;
+  width: 75vh;
+  height: 75vh;
   display: none;
   align-items: center;
   justify-content: center;

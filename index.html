@@ -21,32 +21,33 @@
       <canvas id="canvas" width="900" height="900" style="border:1px solid #000000;"></canvas>
     </div>
     <div class="empty-container"></div>
-  </div>
-  <div id="menuContainer">
-    <div class="menuScreen">
-      <div id="shotHistory">
-        <fieldset id="fieldset">
-          <legend>Settings:</legend>
-            <input type="checkbox" id="user-shots" name="user-shots" checked/>
-              <label for="user-shots">Enable your shot history</label>
-            <br>
-            <input type="checkbox" id="computer-shots" name="computer-shots" checked/>
-              <label for="computer-shots">Enable opponent's shot history</label>
-            <br>
-            <input type="checkbox" id="audio-preference" name="audio-preference" checked/>
-              <label for="audio-preference">Disable game sounds</label>
-        </fieldset>
-      </div>
-      <div class="ship_data_wrapper">
-        <div class="shipReport">
-          <table id="ship-report"></table>
+    <div id="menuContainer">
+      <div class="menuScreen">
+        <div id="shotHistory">
+          <fieldset id="fieldset">
+            <legend>Settings:</legend>
+              <input type="checkbox" id="user-shots" name="user-shots" checked/>
+                <label for="user-shots">Enable your shot history</label>
+              <br>
+              <input type="checkbox" id="computer-shots" name="computer-shots" checked/>
+                <label for="computer-shots">Enable opponent's shot history</label>
+              <br>
+              <input type="checkbox" id="audio-preference" name="audio-preference" checked/>
+                <label for="audio-preference">Disable game sounds</label>
+          </fieldset>
         </div>
-        <div class="narrativeGrid">
-          <p2 id="narrative"></p2>
+        <div class="ship_data_wrapper">
+          <div class="shipReport">
+            <table id="ship-report"></table>
+          </div>
+          <div class="narrativeGrid">
+            <p2 id="narrative"></p2>
+          </div>
         </div>
       </div>
     </div>
   </div>
+  
   <div id="slider-menu">
     <!-- power slider display is off -->
     <div class="power-slider">
