@@ -106,7 +106,8 @@ const bombDamageSlider = document.getElementById("shotPower");
 let bombRadius = 40;
 let firePower = 3;
 let computerBombRadius;
-let stillExpanding;
+let uStillExpanding;
+let cStillExpanding;
 
 function lethalityFromRadius(r) {
   return (-1/20) * r + 5;
@@ -256,13 +257,14 @@ canvas.addEventListener('click', (e) => {
   function animateShot() {
     ctx.fillStyle = 'white';
       
-    if (radius <= bombRadius) {
+    if (radius < bombRadius) {
       radius += 2; // Adjust the expansion rate as needed
       requestAnimationFrame(animateShot); //tell window that animation will be used
+      uStillExpanding = true;
       drawFilledCircle(clickX, clickY, radius);
-      stillExpanding = true;
+      
     }
-    stillExpanding = false;
+    uStillExpanding = false;
   }
   animateShot();
 });
@@ -484,7 +486,7 @@ function assessDamages(x, y, radius) {
         message += `You hit my ${ship.type}. `;
         cHit.play();
       }
-      if (stillExpanding = false) {
+      if (uStillExpanding = false) {
         if (ship.damage >= ship.capacity) {
           message += `You sunk my ${ship.type}! `;
           drawShip(ship.x, ship.y, ship.size, true);
@@ -517,17 +519,20 @@ function assessDamages(x, y, radius) {
         totalDamage += d.damage;
         message += `I hit your ${ship.type}. `;
         uHit.play();
-        if (ship.damage >= ship.capacity) {
-          message += `I sunk your ${ship.type}! `;
-          drawShip(ship.x, ship.y, ship.size, true);
-          state.shipsUnderAttack = state.shipsUnderAttack
-            .filter(s => s !== ship);
-          if (state.shipsUnderAttack.length === 0) {
-            state.destroyShots = [];
-          }
-        } else {
-          if (attacking) {
-            state.repeatShot = true;
+        if (cStillExpanding = false); {
+          if (ship.damage >= ship.capacity) {
+            message += `I sunk your ${ship.type}! `;
+            drawShip(ship.x, ship.y, ship.size, true);
+            state.shipsUnderAttack = state.shipsUnderAttack
+              .filter(s => s !== ship);
+            if (state.shipsUnderAttack.length === 0) {
+              state.destroyShots = [];
+            }
+          } 
+          else {
+            if (attacking) {
+              state.repeatShot = true;
+            }
           }
         }
       }
@@ -603,14 +608,6 @@ function allShipsSunk(player) {
   return sunkCount == ships.length;
 }
 
-function sleep(milliseconds) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
-}
-
 function processRound(event) {
   checkForWinner();
   if (!state.winner) {
@@ -622,7 +619,6 @@ function processRound(event) {
     state.pShots.push(
       {x: pos.x, y: pos.y, r : bombRadius, hit: hit, damage: damage}
     );
-    //sleep(2000);
     state.shooting = "c";
     checkForWinner();
     if (!state.winner) {
@@ -636,9 +632,13 @@ function processRound(event) {
           cRadius += 2; //ajust the expansion rate as needed
           requestAnimationFrame(animateComputerShot); //tells window that animation will be used
           drawFilledCircle(cShot.x, cShot.y, cRadius);
+          cStillExpanding = true;
         }
+        cStillExpanding = false;
       }
-      animateComputerShot();
+      if (uStillExpanding = false) {
+        animateComputerShot();
+      }
       let computerResults = assessDamages(cShot.x, cShot.y, cShot.r);
       hit = computerResults.hit;
       let damage = computerResults.damage;
