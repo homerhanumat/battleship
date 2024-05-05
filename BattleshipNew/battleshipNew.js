@@ -36,37 +36,6 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 canvas.addEventListener("click", processRound);
 
-// Ball Div follows mouse
-// (Dr. White modifies Samuel's implementation.)
-
-// These event listeners keep track of whether the mouse is on the canvas.
-// In a subsequent event listener we will set the ball visibility to 
-// hidden or visible, depending on whether or not we are in the canvas.
-let mouseOnCanvas = false;
-canvas.addEventListener("mouseover", function (){
-  console.log("entered canvas");
-  mouseOnCanvas = true;
-});
-canvas.addEventListener("mouseout", function (){
-  console.log("exited canvas");
-  mouseOnCanvas = false;
-});
-
-// this listener makes the ball follow the mouse:
-window.addEventListener('mousemove', function (e) {
-  let x = e.clientX || e.pageX;
-  let y = e.clientY || e.pageY;
-  const ball = document.getElementById('ball');
-  ball.style.width = `${parseInt(2 * bombRadius)}px`;
-  ball.style.height = `${parseInt(2 * bombRadius)}px`;
-  ball.style.left = `${parseInt(x - bombRadius)}px`;
-  ball.style.top = `${parseInt(y - bombRadius)}px`;
-  // make sure no margins or padding puts the ball off-center:
-  ball.style.margin = "0px";
-  ball.style.padding = "0px";
-  ball.style.visibility = mouseOnCanvas & !state.winner ? "visible" : "hidden";
-});
-
 const pHistory = document.getElementById("user-shots");
 pHistory.addEventListener("change", drawOcean);
 
@@ -90,29 +59,49 @@ window.addEventListener("DOMContentLoaded", function() { // set volume of sound 
   cHit.volume = audio.checked ? 0.025 : 0;
 });
 
+const bombRadiusSlider = document.getElementById("shotSize");
 const bombDamageSlider = document.getElementById("shotPower");
 
-// the following globals will be changed at game outset:
-let maxBombRadius = 100;
 let bombRadius = 40;
 let firePower = 3;
-let computerBombRadius;
 
 function lethalityFromRadius(r) {
-  return (-5/maxBombRadius) * r + 5;
-}
+  return (-1/20) * r + 5;
+} // (Math.pow((bombRadius-104),2)/2163).toFixed(2)
 
 
 function radiusFromLethality(l) {
-  return maxBombRadius - maxBombRadius / 5 * l;
-}
+  return 100 - 20 * l;
+} // (104-Math.sqrt(2163*firePower)).toFixed(2)
+
+bombRadiusSlider.addEventListener("input", function() {
+  bombRadius = parseFloat(this.value);
+  lethality = lethalityFromRadius(bombRadius);
+  bombDamageSlider.value = lethality;
+  bombRadiusSlider.value = bombRadius;
+
+  const ballElement = document.getElementById('ball');
+  ballElement.style.height = 2 * bombRadius + 'px';
+  ballElement.style.width = 2 * bombRadius + 'px';
+  ballElement.style.marginTop = -bombRadius + 'px';
+  ballElement.style.marginLeft = -bombRadius + 'px';
+ 
+  document.getElementById("shotPowerDisplay")
+    .innerText = lethality.toFixed(2);
+  document.getElementById("shotSizeDisplay")
+    .innerText = `${bombRadius.toFixed(1)}%`;
+  
+});
 
 bombDamageSlider.addEventListener("input", function() {
   lethality = parseFloat(this.value);
   bombRadius = radiusFromLethality(lethality);
+  bombRadiusSlider.value = bombRadius;
   bombDamageSlider.value = lethality;
   document.getElementById("shotPowerDisplay")
     .innerText = lethality.toFixed(2);
+  document.getElementById("shotSizeDisplay")
+    .innerText = `${bombRadius.toFixed(1)}%`;
 
   const ballElement = document.getElementById('ball');
   ballElement.style.height = 2 * bombRadius + 'px';
@@ -120,22 +109,6 @@ bombDamageSlider.addEventListener("input", function() {
   ballElement.style.marginTop = -bombRadius + 'px';
   ballElement.style.marginLeft = -bombRadius + 'px';
 });
-
-// UI team: canvas resizing function
-// See line 198 for called function and 665 for button stuff
-
-let screenBox = document.getElementById("screen-box");
-
-function resizeCanvas() {
-  canvas.width = screenBox.clientWidth - 10;
-  canvas.height = screenBox.clientHeight - 10;
-  // set maximum bomb radius:
-  maxBombRadius = canvas.width * 0.125;
-  bombDamageSlider.max = 5;
-  bombDamageSlider.min = 0.01;
-  bombDamageSlider.value = 0.01;
-  bombRadius = radiusFromLethality(0.01);
-}
 
 // game state:
 const state = {
@@ -208,8 +181,6 @@ const state = {
  * run game
  *************************************************/
 
-resizeCanvas();
-
 populateNarrative(
   `Shoot by clicking in my field (upper half).<br>
   I will shoot back.`
@@ -222,34 +193,16 @@ drawOcean();
  * utitlity functions
  ***********************************/
 
-canvas.addEventListener('click', (e) => {
-  const rect = canvas.getBoundingClientRect();
-  const clickX = e.clientX - rect.left;
-  const clickY = e.clientY - rect.top;
-  let radius = 5;
-  function animateShot() {
-    if (radius <= bombRadius) {
-        radius += 2; // Adjust the expansion rate as needed
-        requestAnimationFrame(animateShot); //tell window that animation will be used
-        drawAnimatedCircle(clickX, clickY, radius);
-    }
-  }
-  animateShot();
-});
-
-function drawAnimatedCircle(x, y, r) {
+function drawCircle(x, y, r) {
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2, true);
-  ctx.fillStyle = "white";
-  ctx.fill();
   ctx.stroke();
 }
 
-function drawFilledCircle(x, y, r, damage, hit) {
+function drawFilledCircle(x, y, r, damage) {
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2, true);
-  let opacity = hit ? Math.max(damage / maxDamage, 0.1) : 0;
-  ctx.fillStyle = `rgba(255, 0, 0, ${opacity})`;
+  ctx.fillStyle = `rgba(255, 0, 0, ${damage / maxDamage})`;
   ctx.fill();
   ctx.stroke();
 }
@@ -286,13 +239,13 @@ function drawOcean() {
   // user shots (if requested):
   if (pHistory.checked) {
     for (let shot of state.pShots) {
-      drawFilledCircle(shot.x, shot.y, shot.r, shot.damage, shot.hit);
+      drawFilledCircle(shot.x, shot.y, shot.r, shot.damage);
     }
   }
   // user shots (if requested):
   if (cHistory.checked) {
     for (let shot of state.cShots) {
-      drawFilledCircle(shot.x, shot.y, shot.r, shot.damage, shot.hit);
+      drawFilledCircle(shot.x, shot.y, shot.r, shot.damage);
     }
   }
   // user ships:
@@ -320,62 +273,14 @@ function placeShips() {
   let w = canvas.clientWidth;
   let h = canvas.clientHeight;
   let bh = (h - spaceBetweenOceans) / 2;
-  let goodPlacementC = false;
-  let goodPlacementP = false;
-  
-  // computer ships
-  while(!goodPlacementC) {
-    for (let ship of state.cShips) {
-      ship.x = Math.random() * w;
-      ship.y = Math.random() * bh;
-  }
-  let padding = 5;
-  let farEnoughC = true;
-  let farEnoughFromWallC = true;
   for (let ship of state.cShips) {
-    // check if ship is to close to wall
-    // compares size and position to see if the ship is to close to the wall
-    if (ship.x - ship.size < padding || ship.x + ship.size > w - padding) {
-      farEnoughFromWallC = false;
-    } else if (ship.y - ship.size < padding || ship.y + ship.size > h - padding) {
-      farEnoughFromWallC = false;
-  } 
-    let otherShipsC = state.cShips.filter(s => s !== ship);
-      for(let os in otherShipsC) {
-        let d = dist(ship.x ,ship.y ,os.x ,os.y);
-        if (d < ship.size + os.size) {
-          farEnoughC = false;
-        }
-      }
-  }
-  goodPlacementC = farEnoughC && farEnoughFromWallC;
-}
-
-  // player ships
-  while(!goodPlacementP) {
-    for (let ship of state.pShips) {
-      ship.x = Math.random() * w;
-      ship.y = h/2 + spaceBetweenOceans / 2 + Math.random() * bh;
-  }
-  let farEnoughP = true;
-  let farEnoughFromWallP = true;
+    ship.x = Math.random() * w;
+    ship.y = Math.random() * bh;
+  };
   for (let ship of state.pShips) {
-  
-    if (ship.x - ship.size < 0 || ship.x + ship.size > w) {
-      farEnoughFromWallP = false;
-    } else if (ship.y - ship.size < 0 || ship.y + ship.size > h) {
-      farEnoughFromWallP = false;
-  } 
-    let otherShipsP = state.pShips.filter(s => s !== ship);
-      for(let os in otherShipsP) {
-        let d = dist(ship.x ,ship.y ,os.x ,os.y);
-        if (d < ship.size + os.size) {
-          farEnoughP = false;
-        }
-      }
-  }
-  goodPlacementP = farEnoughP && farEnoughFromWallP;
-  }
+    ship.x = Math.random() * w;
+    ship.y = h/2 + spaceBetweenOceans / 2 + Math.random() * bh;
+  };
 }
 
 /*****************************************
@@ -385,7 +290,8 @@ function placeShips() {
 function computerShot() {
   function search() {
     // simple choice for now:
-    computerBombRadius = maxBombRadius;
+    //let computerBombRadius = 50 + Math.random() * 50;
+    let computerBombRadius = 100;
   
     let newSpot = false;
     let w = canvas.clientWidth;
@@ -423,7 +329,6 @@ function computerShot() {
     // select a radius so that >=1 unit of damage is done on a hit,
     // and is less than half the radius of search-circle:
     r = Math.min(searchRadius * 0.5, radiusFromLethality(1));
-    computerBombRadius = r;
     // so that new shot does not go outside the search-circle,
     // its center should be no further than this amount
     // from the center of the search-circle:
@@ -455,11 +360,9 @@ function assessDamages(x, y, radius) {
         totalDamage += d.damage;
         message += `You hit my ${ship.type}. `;
         cHit.play();
-        createUShipHitDiv();
       }
       if (ship.damage >= ship.capacity) {
         message += `You sunk my ${ship.type}! `;
-        createSunkShipDiv();
         drawShip(ship.x, ship.y, ship.size, true);
       }
     }
@@ -489,10 +392,8 @@ function assessDamages(x, y, radius) {
         totalDamage += d.damage;
         message += `I hit your ${ship.type}. `;
         uHit.play();
-        createHitShotDiv();
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
-          createUShipSunkDiv();
           drawShip(ship.x, ship.y, ship.size, true);
           state.shipsUnderAttack = state.shipsUnderAttack
             .filter(s => s !== ship);
@@ -529,8 +430,8 @@ function populateShipReport() {
       `<tr>
         <td>${state.pShips[i].type}</td>
         <td>${state.pShips[i].capacity}</td>
-        <td>${state.pShips[i].damage.toFixed(2)}</td>
-        <td>${state.cShips[i].damage.toFixed(2)}</td>
+        <td>${state.pShips[i].damage}</td>
+        <td>${state.cShips[i].damage}</td>
       </tr>`;
   }
   contents += "</tbody>";
@@ -584,6 +485,7 @@ function processRound(event) {
   checkForWinner();
   if (!state.winner) {
     let pos = getMousePos(canvas, event);
+    drawCircle(pos.x, pos.y, bombRadius);
     let userResults = assessDamages(pos.x, pos.y, bombRadius);
     let hit = userResults.hit;
     let damage = userResults.damage;
@@ -591,21 +493,12 @@ function processRound(event) {
     state.pShots.push(
       {x: pos.x, y: pos.y, r : bombRadius, hit: hit, damage: damage}
     );
-    //sleep(2000);
+    sleep(2000);
     state.shooting = "c";
     checkForWinner();
     if (!state.winner) {
       let cShot = computerShot();
-      let cRadius = 5;
-
-      function animateComputerShot() {
-        if (cRadius < computerBombRadius) {
-          cRadius += 2; //adjust the expansion rate as needed
-          requestAnimationFrame(animateComputerShot); //tells window that animation will be used
-          drawAnimatedCircle(cShot.x, cShot.y, cRadius);
-        }
-      }
-      animateComputerShot();
+      drawCircle(cShot.x, cShot.y, cShot.r);
       let computerResults = assessDamages(cShot.x, cShot.y, cShot.r);
       hit = computerResults.hit;
       let damage = computerResults.damage;
@@ -631,95 +524,45 @@ function processRound(event) {
   }
 }
 
+// Ball Div follows mouse
+// (Dr. White modifies Samuel's implementation.)
 
-
-// UI team button stuff
-// See 113 for other UI stuff
-
-// First button (settings):
-let buttonGear = document.getElementById("button-gear");
-let menuDiv = document.getElementById("menuContainer");
-
-// Second button (sliders):
-let sliderButton = document.getElementById("button-slider");
-let sliderMenu = document.getElementById("slider-menu");
-
-
-let openClose = function(openContainer) {
-  console.log(openContainer);
-  console.log(openContainer.style.display);
-  if (openContainer.style.display == "" || openContainer.style.display == "none") {
-    openContainer.style.display = "grid";
-  } else {
-    openContainer.style.display = "none";
-  }
-}
-window.addEventListener('resize', resizeCanvas);
-
-buttonGear.addEventListener("click", function() {
-  openClose(menuDiv);
+// These event listeners keep track of whether the mouse is on the canvas.
+// In a subsequent event listener we will set the ball visibility to 
+// hidden or visible, depending on whether or not we are in the canvas.
+let mouseOnCanvas = false;
+canvas.addEventListener("mouseover", function (){
+  console.log("entered canvas");
+  mouseOnCanvas = true;
+});
+canvas.addEventListener("mouseout", function (){
+  console.log("exited canvas");
+  mouseOnCanvas = false;
 });
 
-sliderButton.addEventListener("click", function() {
-  openClose(sliderMenu);
+// this listener makes the ball follow the mouse:
+window.addEventListener('mousemove', function (e) {
+  let x = e.clientX || e.pageX;
+  let y = e.clientY || e.pageY;
+
+  const ball = document.getElementById('ball');
+  ball.style.width = `${parseInt(2 * bombRadius)}px`;
+  ball.style.height = `${parseInt(2 * bombRadius)}px`;
+  // I messed around a bit and found that an extra 8 pixels
+  // makes the following ball center on the mouse:
+  ball.style.left = `${parseInt(x - bombRadius - 8)}px`;
+  ball.style.top = `${parseInt(y - bombRadius) - 8}px`;
+  // make sure no margins or padding puts the ball off-center:
+  ball.style.margin = "0px";
+  ball.style.padding = "0px";
+  // Finally, determine whether to show the ball.
+  // (It should show if the mouse is over the canvas and 
+  // there the game is still on.)
+  // Note that the ball will show, and shots are recorded,
+  // even if the user is in his/her own ocean.  If we want
+  // this behavior, should we not also make it possible
+  // to damage one's own ship?
+  ball.style.visibility = mouseOnCanvas & !state.winner ? "visible" : "hidden";
 });
-function createHitShotDiv() {
-  var div = document.getElementById("youHitAShot");
-  if (div.style.display === "none") {
-    div.style.display = "block";
-    youSunkAShip.style.display = 'none';
-    yourShipWasHit.style.display = 'none';
-    yourShipWasSunk.style.display = 'none';
-  }
-  var timeInMilliseconds1 = 4000;
-  function hideDiv() {
-    youHitAShip.style.display = 'none';
-  }
-  setTimeout(hideDiv, timeInMilliseconds1);
-}
 
-function createSunkShipDiv() {
-  var div = document.getElementById("youSunkAShip");
-  if (div.style.display === "none") {
-    div.style.display = "block";
-    youHitAShot.style.display = 'none';
-    yourShipWasHit.style.display = 'none';
-    yourShipWasSunk.style.display = 'none';
-  }
-  var timeInMilliseconds1 = 4000;
-  function hideDiv() {
-    youSunkAShip.style.display = 'none';
-  }
-  setTimeout(hideDiv, timeInMilliseconds1);
-}
 
-function createUShipHitDiv() {
-  var div = document.getElementById("yourShipWasHit");
-  if (div.style.display === "none") {
-    div.style.display = "block";
-    youHitAShot.style.display = 'none';
-    youSunkAShip.style.display = 'none';
-    yourShipWasSunk.style.display = 'none';
-  }
-  var timeInMilliseconds3 = 4000;
-  function hideDiv() {
-    yourShipWasHit.style.display = 'none';
-  }
-  setTimeout(hideDiv, timeInMilliseconds3);
-}
-
-function createUShipSunkDiv() {
-  var div = document.getElementById("yourShipWasSunk");
-  if (div.style.display === "none") {
-    div.style.display = "block";
-    youHitAShot.style.display = 'none';
-    youSunkAShip.style.display = 'none';
-    yourShipWasHit.style.display = 'none';
-  }
-  var timeInMilliseconds4 = 4000;
-  function hideDiv() {
-    yourShipWasSunk.style.display = 'none';
-
-  }
-  setTimeout(hideDiv, timeInMilliseconds4);
-}

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="battleshipNew.css">
+  <title>Battleship with the new look</title>
+</head>
+
+<body style="height:100%; overflow: hidden">
+    <div id="mainBox" class="mainBox">
+
+        <div class="buttonPanel">
+            <div class="button1">
+                <button id="button1">Slider Button</button>
+            </div>
+            <div class="button2">
+                <button id="button2">Toggle Ship Report?</button>
+            </div>
+            <div class="button3">
+                <button id="button3">Options Button</button>
+            </div>
+        </div>
+
+        <div class="gamePanel">
+            <canvas id="canvas" width="955" height="675" style="border:1px solid #000000;"></canvas>
+        </div>
+
+        <div class="textPanel">
+            <div class="narrativeText">
+                <p2 id="narrative"></p2>
+            </div>
+            <div class="shipReport">
+                <table id="ship-report"></table>
+            </div>
+        </div>
+
+        <div class="controlPanel">
+            <div class="controlText">Controls</div>
+            <div class="slider1">
+                <div class="slider1display">
+                    <label for="shotPower">Bomb Intensity</label>
+                </div>
+                <div class="slider1slider">
+                    <input type="range" min="0.01" max="4.99" value="1.35" step=".01"  id="shotPower">
+                </div>
+                <div class="slider1output">
+                    <output id = "shotPowerDisplay">1.35</output>
+                </div>
+            </div>
+            <div class="slider2">
+                <div class="slider2display">
+                    <label for="shotPower">Bomb Size</label>
+                </div>
+                <div class="slider2slider">
+                    <input type="range" min="0.1" max="99.8" value="50" step=".01"  id="shotSize">
+                </div>
+                <div class="slider2output">
+                    <output id = "shotSizeDisplay">50%</output>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        
+    </div>
+    <div id="ball"></div>
+    <script src="battleshipNew.js"></script>
+    
+    <div class="item2" id="shotHistory">
+        <fieldset id="fieldset">
+          <legend>Shot history:</legend>
+            <input type="checkbox" id="user-shots" name="user-shots" checked/>
+              <label for="user-shots">Enable your shot history</label>
+              <br>
+               <input type="checkbox" id="computer-shots" name="computer-shots" checked/>
+              <label for="computer-shots">Enable opponent's shot history</label>
+              <br>
+              <input type="checkbox" id="audio-preference" name="audio-preference" checked/>
+              <label for="audio-preference">Disable game sounds</label>
+        </fieldset>
+      </div>
+</body>
+</html>
