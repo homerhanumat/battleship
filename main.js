@@ -34,7 +34,7 @@ const cHit = new Audio("Sounds/cHit.mp3");
 // html elements
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-canvas.addEventListener("click", processRound);
+canvas.addEventListener("click", processUserShot);
 
 // Ball Div follows mouse
 // (Dr. White modifies Samuel's implementation.)
@@ -44,11 +44,9 @@ canvas.addEventListener("click", processRound);
 // hidden or visible, depending on whether or not we are in the canvas.
 let mouseOnCanvas = false;
 canvas.addEventListener("mouseover", function (){
-  console.log("entered canvas");
   mouseOnCanvas = true;
 });
 canvas.addEventListener("mouseout", function (){
-  console.log("exited canvas");
   mouseOnCanvas = false;
 });
 
@@ -64,7 +62,7 @@ window.addEventListener('mousemove', function (e) {
   // make sure no margins or padding puts the ball off-center:
   ball.style.margin = "0px";
   ball.style.padding = "0px";
-  ball.style.visibility = mouseOnCanvas & !state.winner ? "visible" : "hidden";
+  ball.style.visibility = mouseOnCanvas & !state.winner & !state.roundInProcess ? "visible" : "hidden";
 });
 
 const pHistory = document.getElementById("user-shots");
@@ -97,6 +95,7 @@ let maxBombRadius = 100;
 let bombRadius = 40;
 let firePower = 3;
 let computerBombRadius;
+let narrativeContents = "";
 
 function lethalityFromRadius(r) {
   return (-5/maxBombRadius) * r + 5;
@@ -201,7 +200,8 @@ const state = {
   // array to hold ships to be attacked:
   shipsUnderAttack: [],
   // does computer need to repeat its previous shot?
-  repeatShot: false
+  repeatShot: false,
+  roundInProcess : false
 };
 
 /*************************************************
@@ -221,21 +221,6 @@ drawOcean();
 /***********************************
  * utitlity functions
  ***********************************/
-
-canvas.addEventListener('click', (e) => {
-  const rect = canvas.getBoundingClientRect();
-  const clickX = e.clientX - rect.left;
-  const clickY = e.clientY - rect.top;
-  let radius = 5;
-  function animateShot() {
-    if (radius <= bombRadius) {
-        radius += 2; // Adjust the expansion rate as needed
-        requestAnimationFrame(animateShot); //tell window that animation will be used
-        drawAnimatedCircle(clickX, clickY, radius);
-    }
-  }
-  animateShot();
-});
 
 function drawAnimatedCircle(x, y, r) {
   ctx.beginPath();
@@ -276,12 +261,7 @@ function drawOcean() {
   // top border of computer area:
   ctx.fillRect(0, 0, w, bh);
   // bottom border of user area:
-
-
-  // removed code '+ bombRadius' for smaller dividing rectangle
   ctx.fillRect(0, bh + 10, w, h);
-
-
 
   // user shots (if requested):
   if (pHistory.checked) {
@@ -445,7 +425,7 @@ function assessDamages(x, y, radius) {
   let message = "";
   let totalDamage = 0;
   if (state.shooting == "u") {
-    message += `Your bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `
+    //message += `Your bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `
     let ships = state.cShips.filter(s => s.damage < s.capacity);
     for (let ship of ships) {
       let d = damage(ship.x, ship.y, x, y, ship.size, radius);
@@ -454,20 +434,20 @@ function assessDamages(x, y, radius) {
         ship.damage += d.damage;
         totalDamage += d.damage;
         message += `You hit my ${ship.type}. `;
-        cHit.play();
-        createUShipHitDiv();
+        //cHit.play();
+        //createUShipHitDiv();
       }
       if (ship.damage >= ship.capacity) {
         message += `You sunk my ${ship.type}! `;
-        createSunkShipDiv();
-        drawShip(ship.x, ship.y, ship.size, true);
+        //createSunkShipDiv();
+        //drawShip(ship.x, ship.y, ship.size, true);
       }
     }
     if (!hit) {
       message += "You did not hit anything."
     }
   } else {
-    message += `My bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `;
+    //message += `My bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `;
     let ships;
     let attacking = state.shipsUnderAttack.length > 0;
     if (attacking) {
@@ -488,12 +468,12 @@ function assessDamages(x, y, radius) {
         ship.damage += d.damage;
         totalDamage += d.damage;
         message += `I hit your ${ship.type}. `;
-        uHit.play();
-        createHitShotDiv();
+        //uHit.play();
+        //createHitShotDiv();
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
-          createUShipSunkDiv();
-          drawShip(ship.x, ship.y, ship.size, true);
+          //createUShipSunkDiv();
+          //drawShip(ship.x, ship.y, ship.size, true);
           state.shipsUnderAttack = state.shipsUnderAttack
             .filter(s => s !== ship);
           if (state.shipsUnderAttack.length === 0) {
@@ -510,7 +490,7 @@ function assessDamages(x, y, radius) {
       message += "I did not hit anything."
     }
   }
-  console.log(message);
+  console.log("message");
   return {hit: hit, damage : totalDamage, message : message};
 }
 
@@ -580,54 +560,109 @@ function sleep(milliseconds) {
   } while (currentDate - date < milliseconds);
 }
 
-function processRound(event) {
-  checkForWinner();
-  if (!state.winner) {
-    let pos = getMousePos(canvas, event);
-    let userResults = assessDamages(pos.x, pos.y, bombRadius);
-    let hit = userResults.hit;
-    let damage = userResults.damage;
-    let message = userResults.message;
-    state.pShots.push(
-      {x: pos.x, y: pos.y, r : bombRadius, hit: hit, damage: damage}
-    );
-    //sleep(2000);
-    state.shooting = "c";
-    checkForWinner();
-    if (!state.winner) {
-      let cShot = computerShot();
-      let cRadius = 5;
 
-      function animateComputerShot() {
-        if (cRadius < computerBombRadius) {
-          cRadius += 2; //adjust the expansion rate as needed
-          requestAnimationFrame(animateComputerShot); //tells window that animation will be used
+function processUserShot(event) {
+  if (state.roundInProcess) {
+    return null;
+  }
+  if (state.winner) {
+    return null;
+  }
+  state.roundInProcess = true;
+  document.getElementById("ball").style.visibility = "hidden";
+  state.shooting = "u";
+  const div = document.getElementById("comp-results-display");
+  div.innerText = "";
+  div.style.display = "none";
+  let pos = getMousePos(canvas, event);
+  let userResults = assessDamages(pos.x, pos.y, bombRadius);
+  let hit = userResults.hit;
+  let damage = userResults.damage;
+  let narrativeContents = userResults.message;
+  state.pShots.push(
+    {x: pos.x, y: pos.y, r : bombRadius, hit: hit, damage: damage}
+  );
+
+  const rect = canvas.getBoundingClientRect();
+  const clickX = event.clientX - rect.left;
+  const clickY = event.clientY - rect.top;
+  let radius = 5;
+  function animateShot() {
+    if (radius <= bombRadius) {
+        radius += 2; // Adjust the expansion rate as needed
+        requestAnimationFrame(animateShot); //tell window that animation will be used
+        drawAnimatedCircle(clickX, clickY, radius);
+    }
+  }
+  animateShot();
+  setTimeout(postUserShot, 800, userResults);
+
+}
+
+function postUserShot(results) {
+  if (results.hit) {
+    cHit.play();
+  }
+
+  const div = document.getElementById("results-display");
+  div.innerText = results.message;
+  checkForWinner();
+  if (state.winner) {
+    div.innerText += " You sunk all my ships.  You win!";
+    drawOcean();
+    return null;
+  }
+  div.style.display = "block";
+  drawOcean();
+  setTimeout(processComputerShot, 1000);
+}
+
+function processComputerShot() {
+  state.shooting = "c";
+  const div = document.getElementById("results-display");
+  div.innerText = "";
+  div.style.display = "none";
+  let cShot = computerShot();
+  let cRadius = 5;
+
+  let computerResults = assessDamages(cShot.x, cShot.y, cShot.r);
+  let hit = computerResults.hit;
+  let damage = computerResults.damage;
+  narrativeContents += `<br>${computerResults.message}`;
+  state.cShots.push(
+    {x: cShot.x, y: cShot.y, r : cShot.r, hit: hit, damage: damage}
+  );
+
+  function animateComputerShot() {
+    if (cRadius < computerBombRadius) {
+          cRadius += 2; 
+          requestAnimationFrame(animateComputerShot);
           drawAnimatedCircle(cShot.x, cShot.y, cRadius);
-        }
-      }
-      animateComputerShot();
-      let computerResults = assessDamages(cShot.x, cShot.y, cShot.r);
-      hit = computerResults.hit;
-      let damage = computerResults.damage;
-      message += `<br>${computerResults.message}`;
-      state.cShots.push(
-        {x: cShot.x, y: cShot.y, r : cShot.r, hit: hit, damage: damage}
-      );
-      state.shooting = "u";
-      checkForWinner();
-    }
-    if (state.winner) {
-      if (state.winner == "u") {
-        message += `<br>You sunk all my ships.  You win!`;
-        uWin.play();
-      } else {
-        message += `<br>I sunk all your ships.  I win!`;
-        uLose.play();
       }
     }
-    populateShipReport();
-    populateNarrative(message);
-    window.setTimeout(drawOcean, 2000);
+  animateComputerShot();
+  setTimeout(postComputerShot, 800, computerResults);
+}
+
+function postComputerShot(results) {
+  if (results.hit) {
+    uHit.play();
+  }
+  checkForWinner();
+  div = document.getElementById("comp-results-display");
+  div.innerText = results.message;
+  if (state.winner && state.winner == "c") {
+    div.innerText += " I win!";
+  }
+  div.style.display = "block";
+  drawOcean();
+  function transition() {
+    div.style.display = "none";
+    document.getElementById("ball").style.visibility = "visible";
+    state.roundInProcess = false;
+  }
+  if (!state.winner) {
+    setTimeout(transition, 1000);
   }
 }
 
@@ -646,8 +681,6 @@ let sliderMenu = document.getElementById("slider-menu");
 
 
 let openClose = function(openContainer) {
-  console.log(openContainer);
-  console.log(openContainer.style.display);
   if (openContainer.style.display == "" || openContainer.style.display == "none") {
     openContainer.style.display = "grid";
   } else {
@@ -663,63 +696,5 @@ buttonGear.addEventListener("click", function() {
 sliderButton.addEventListener("click", function() {
   openClose(sliderMenu);
 });
-function createHitShotDiv() {
-  var div = document.getElementById("youHitAShot");
-  if (div.style.display === "none") {
-    div.style.display = "block";
-    youSunkAShip.style.display = 'none';
-    yourShipWasHit.style.display = 'none';
-    yourShipWasSunk.style.display = 'none';
-  }
-  var timeInMilliseconds1 = 4000;
-  function hideDiv() {
-    youHitAShip.style.display = 'none';
-  }
-  setTimeout(hideDiv, timeInMilliseconds1);
-}
 
-function createSunkShipDiv() {
-  var div = document.getElementById("youSunkAShip");
-  if (div.style.display === "none") {
-    div.style.display = "block";
-    youHitAShot.style.display = 'none';
-    yourShipWasHit.style.display = 'none';
-    yourShipWasSunk.style.display = 'none';
-  }
-  var timeInMilliseconds1 = 4000;
-  function hideDiv() {
-    youSunkAShip.style.display = 'none';
-  }
-  setTimeout(hideDiv, timeInMilliseconds1);
-}
 
-function createUShipHitDiv() {
-  var div = document.getElementById("yourShipWasHit");
-  if (div.style.display === "none") {
-    div.style.display = "block";
-    youHitAShot.style.display = 'none';
-    youSunkAShip.style.display = 'none';
-    yourShipWasSunk.style.display = 'none';
-  }
-  var timeInMilliseconds3 = 4000;
-  function hideDiv() {
-    yourShipWasHit.style.display = 'none';
-  }
-  setTimeout(hideDiv, timeInMilliseconds3);
-}
-
-function createUShipSunkDiv() {
-  var div = document.getElementById("yourShipWasSunk");
-  if (div.style.display === "none") {
-    div.style.display = "block";
-    youHitAShot.style.display = 'none';
-    youSunkAShip.style.display = 'none';
-    yourShipWasHit.style.display = 'none';
-  }
-  var timeInMilliseconds4 = 4000;
-  function hideDiv() {
-    yourShipWasSunk.style.display = 'none';
-
-  }
-  setTimeout(hideDiv, timeInMilliseconds4);
-}

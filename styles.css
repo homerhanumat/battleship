@@ -220,7 +220,8 @@ tr:nth-child(even) {
   pointer-events: none;
   z-index: 100;
 }
-#youHitAShot{
+
+#results-display {
   font-size: 25px;
   font-style: italic;
   position: absolute;
@@ -230,11 +231,12 @@ tr:nth-child(even) {
   left: 25%;
   border-radius: 100px;
   padding-top: 2.5%;
-  animation-name: fadeIn;
-  animation-duration: 4s;
+  animation-name: fadeInUser;
+  animation-duration: 3s;
   animation-direction: alternate;
 }
-#youSunkAShip{
+
+#comp-results-display {
   font-size: 25px;
   font-style: italic;
   position: absolute;
@@ -244,38 +246,20 @@ tr:nth-child(even) {
   left: 25%;
   border-radius: 100px;
   padding-top: 2.5%;
-  animation-name: fadeIn;
-  animation-duration: 4s;
+  animation-name: fadeInComputer;
+  animation-duration: 3s;
 }
-#yourShipWasHit{
-  font-size: 25px;
-  font-style: italic;
-  position: absolute;
-  width:50%;
-  height: 5%;
-  text-align: center;
-  left: 25%;
-  border-radius: 100px;
-  padding-top: 2.5%;
-  animation-name: fadeIn;
-  animation-duration: 4s;
-}
-#yourShipWasSunk{
-  font-size: 25px;
-  font-style: italic;
-  position: absolute;
-  width: 50%;
-  height: 5%;
-  text-align: center;
-  left: 25%;
-  border-radius: 100px;
-  padding-top: 2.5%;
-  animation-name: fadeIn;
-  animation-duration: 4s;
-}
-@keyframes fadeIn {
+
+@keyframes fadeInUser {
   0% {color:rgba(255, 255, 255, 0); bottom: 10px}
   5% {color: black; bottom: 80%}
   95% {color: black; bottom: 80%}
+  100% {color:rgba(255, 255, 255, 0); bottom: 10px}
+}
+
+@keyframes fadeInComputer {
+  0% {color:rgba(255, 255, 255, 0); bottom: 10px}
+  5% {color: black; bottom: 40%}
+  95% {color: black; bottom: 40%}
   100% {color:rgba(255, 255, 255, 0); bottom: 10px}
 }
