@@ -19,6 +19,12 @@ const shipCapacities = {
   Cruiser: 3,
   Battleship: 5
 };
+// for debugging:
+// const shipCapacities = {
+//   Destroyer: 0.01,
+//   Cruiser: 0.01,
+//   Battleship: 0.01
+// };
 const showCircleTime = 1000;
 const tempCircleInfo = {
   x : undefined,
@@ -538,8 +544,11 @@ function getMousePos(canvas, evt) {
 function checkForWinner() {
   let playerDoneFor = allShipsSunk("u");
   let computerDoneFor = allShipsSunk("c");
-  if (playerDoneFor || computerDoneFor) {
-    state.winner = state.shooting == "u" ? "c" : "u";
+  if (playerDoneFor) {
+    state.winner = "c";
+  }
+  if (computerDoneFor) {
+    state.winner = "u";
   }
 }
 
@@ -600,18 +609,18 @@ function processUserShot(event) {
 }
 
 function postUserShot(results) {
-  if (results.hit) {
-    cHit.play();
-  }
-
   const div = document.getElementById("results-display");
   div.innerText = results.message;
   checkForWinner();
   div.style.display = "block";
   if (state.winner) {
     div.innerText += " You sunk all my ships.  You win!";
+    uWin.play();
     drawOcean();
     return null;
+  } 
+  if (results.hit){
+    cHit.play();
   }
   drawOcean();
   setTimeout(processComputerShot, 1000);
@@ -645,17 +654,23 @@ function processComputerShot() {
 }
 
 function postComputerShot(results) {
-  if (results.hit) {
-    uHit.play();
-  }
+  drawOcean();
   checkForWinner();
   div = document.getElementById("comp-results-display");
   div.innerText = results.message;
   if (state.winner && state.winner == "c") {
     div.innerText += " I win!";
   }
+  console.log(div.innerText);
   div.style.display = "block";
-  drawOcean();
+  if (state.winner && state.winner == "c") {
+    uLose.play();
+    
+    return null;
+  }
+  if (results.hit) {
+    uHit.play();
+  }
   function transition() {
     div.style.display = "none";
     document.getElementById("ball").style.visibility = "visible";
