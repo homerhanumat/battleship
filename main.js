@@ -581,7 +581,7 @@ function processUserShot(event) {
   document.getElementById("ball").style.visibility = "hidden";
   state.shooting = "u";
   const div = document.getElementById("comp-results-display");
-  div.innerText = "";
+  div.innerHTML = "";
   div.style.display = "none";
   let pos = getMousePos(canvas, event);
   let userResults = assessDamages(pos.x, pos.y, bombRadius);
@@ -610,11 +610,11 @@ function processUserShot(event) {
 
 function postUserShot(results) {
   const div = document.getElementById("results-display");
-  div.innerText = results.message;
+  div.innerHTML = results.message;
   checkForWinner();
   div.style.display = "block";
   if (state.winner) {
-    div.innerText += " You sunk all my ships.  You win!";
+    div.innerHTML += "<br>You sunk all my ships.  You win!";
     uWin.play();
     drawOcean();
     return null;
@@ -629,7 +629,7 @@ function postUserShot(results) {
 function processComputerShot() {
   state.shooting = "c";
   const div = document.getElementById("results-display");
-  div.innerText = "";
+  div.innerHTML = "";
   div.style.display = "none";
   let cShot = computerShot();
   let cRadius = 5;
@@ -657,11 +657,11 @@ function postComputerShot(results) {
   drawOcean();
   checkForWinner();
   div = document.getElementById("comp-results-display");
-  div.innerText = results.message;
+  div.innerHTML = results.message;
   if (state.winner && state.winner == "c") {
-    div.innerText += " I win!";
+    div.innerHTML += "<br>I sunk all your ships! I win!";
   }
-  console.log(div.innerText);
+  console.log(div.innerHTML);
   div.style.display = "block";
   if (state.winner && state.winner == "c") {
     uLose.play();
