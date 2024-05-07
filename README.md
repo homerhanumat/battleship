@@ -23,9 +23,9 @@ You will see two blue oceans.  The lower ocean belongs to you; the upper ocean i
 
 * A battleship (largest).  This ship needs 5 or more units of damage to be sunk.
 * A cruiser.  Crusiers sink when they receive 3 or more damage-units.
-* A destroyer (smallest).  two or more units of damge will sink this ship.
+* A destroyer (smallest).  Two or more units of damge will sink this ship.
 
-You can see your own ships.  You cannot a ship belonging to the computer until you sink that ship.
+You can see your own ships.  You cannot see a ship belonging to the computer until you sink that ship.
 
 You and the computer will take turns dropping bombs on each other's territory.  You will go first.
 
