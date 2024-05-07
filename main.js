@@ -490,7 +490,7 @@ function assessDamages(x, y, radius) {
       message += "I did not hit anything."
     }
   }
-  console.log("message");
+  console.log(message);
   return {hit: hit, damage : totalDamage, message : message};
 }
 
