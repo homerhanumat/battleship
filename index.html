@@ -1,75 +1,48 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tiger Battleship</title>
-  <link rel="stylesheet" href="styles.css">
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+   <title>BATTLESHIP Homepage</title>
+
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+
+   <link rel="stylesheet" href="homepage_styles.css">
+   <style>
+
+   html {
+       background-image: url('images/battleship-background.jpg');
+       background-size: auto;
+       background-repeat: no-repeat;
+}
+   </style>
 </head>
 <body>
-  <img src="images/battleship_logo.png" alt="BATTLESHIP" class="logo">
-  <div class="container">
-    <div class="button-container">
-      <div id="button-gear">
-        <i class="fa-solid fa-gear"></i>
-      </div>
-      <div id="button-slider">
-        <i class="fa-solid fa-bomb"></i>
-      </div>
+   <img src="images/battleship_logo.png" class="logo-homepage">
+   <h2>CSC 470 Edition</h2>
+   <div class="button-wrapper">
+       <div class="button-border">
+           <a href="game.html" class="play-button">PLAY</a>
+       </div>
+   </div>
+
+
+<div class="links-container">
+
+    <div class="links">
+
+
+        <a href="#" class="link">How to Play</a>
+
+        <a href="https://github.com/homerhanumat/battleship" class="link">About</a>
+
     </div>
-    <div id="screen-box">
-      <canvas id="canvas" width="900" height="900" style="border:1px solid #000000;"></canvas>
-    </div>
-    <div class="empty-container"></div>
-  </div>
-  <div id="menuContainer">
-    <div class="menuScreen">
-      <div id="shotHistory">
-        <fieldset id="fieldset">
-          <legend>Settings:</legend>
-            <input type="checkbox" id="user-shots" name="user-shots" checked/>
-              <label for="user-shots">Enable your shot history</label>
-            <br>
-            <input type="checkbox" id="computer-shots" name="computer-shots" checked/>
-              <label for="computer-shots">Enable opponent's shot history</label>
-            <br>
-            <input type="checkbox" id="audio-preference" name="audio-preference" checked/>
-              <label for="audio-preference">Enable game sounds</label>
-            <br>
-            <input type="button" id="menu-button" name="menu-button" value="Back to Menu">
-            <br>
-            <input type="button" id="tutorial-button" name="tutorial-button" value="Tutorial">
-            <br>
-            <input type="button" id="restart-button" name="restart-button" value="Restart the Game">
-            <br>
-        </fieldset>
-      </div>
-      <div class="ship_data_wrapper">
-        <div class="shipReport">
-          <table id="ship-report"></table>
-        </div>
-        <div class="narrativeGrid">
-          <p2 id="narrative"></p2>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div id="slider-menu">
-    <!-- power slider display is off -->
-      <div class="shotPowerLabel">
-        <label for="shotPower">Intensity</label>
-      </div>
-      <div class="sliderDiv">
-        <input type="range" min="0.01" max="4.99" value="0.01" step=".01"  id="shotPower" class="vslider">
-      </div>
-      <div class="shotPowerOutput">
-        <output id = "shotPowerDisplay">0.01</output>
-      </div>
-  </div>
-  <div id="ball"></div>
-  <div id="results-display" style="display: none;"></div>
-  <div id="comp-results-display" style="display: none;"></div>
-  <script src="main.js"></script>
-  <script src="https://kit.fontawesome.com/40df24b4fa.js" crossorigin="anonymous"></script>
+
+</div>
+
 </body>
 </html>

@@ -1,0 +1,157 @@
+* {
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+ }
+ 
+ 
+ html {
+    background-image: url('images/battleship-background.jpg');
+    background-size: contain;
+    background-repeat: no-repeat;
+ }
+ 
+ html,body {
+    margin:0;
+    padding:0;
+ }
+ 
+ .logo-homepage {
+    margin: 10rem auto 6rem auto;
+    display: block;
+ }
+ 
+ .logo {
+    margin: 0 auto 7rem auto;
+ }
+ 
+ h2 {
+    color: white;
+    text-align: center;
+    margin-top: -100px;
+    margin-bottom: 6rem;
+    font-size: 24px;
+    font-weight: medium;
+ }
+ 
+ .button-wrapper {
+    display: flex;
+    justify-content: center;
+ }
+ 
+ .button-border {
+    border: 5px solid red;
+    padding: 5px;
+    border-radius: 20px;
+ }
+ 
+ .play-button {
+  display: inline-block;
+  padding: 7.5px 15px;
+  font-family: "Roboto Mono", monospace;
+  font-size: 96px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: red;
+  border-radius: 15px;
+ }
+ 
+ .play-button:hover {background-color: #be0000}
+ .button-border:hover {border-color: #be0000}
+ 
+ .play-button:active {
+  background-color: #be0000;
+  transform: translateY(4px);
+ }
+ 
+ .slideshow {
+    display: flex;
+    justify-content: center;
+ 
+    max-width: 1000px;
+    position: relative;
+    margin: auto;
+ }
+  
+ .prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    width: auto;
+    margin-top: -22px;
+    padding: 16px;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    transition: 0.6s ease;
+    border-radius: 0 3px 3px 0;
+    user-select: none;
+ }
+  
+ .next {
+    right: 0;
+    border-radius: 3px 0 0 3px;
+ }
+  
+ .prev:hover, .next:hover {
+    background-color: rgba(0,0,0,0.8);
+ }
+  
+ .text {
+    color: #f2f2f2;
+    font-size: 15px;
+    padding: 8px 12px;
+    position: absolute;
+    bottom: 8px;
+    width: 100%;
+    text-align: center;
+ }
+  
+ .active, .dot:hover {
+    background-color: #717171;
+ }
+ 
+ .slide {
+    display: none;
+    background-color: #be0000;
+ }
+ 
+ .links-container {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+ }
+ 
+ .links {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 5rem 2rem 5rem;
+ }
+ 
+ .link {
+    text-decoration: none;
+    color: white;
+    font-size: 24px;
+ }
+ 
+ .fade {
+    animation-name: fade;
+    animation-duration: 1.5s;
+ }
+  
+ @keyframes fade {
+    from {opacity: .4} 
+    to {opacity: 1}
+ }
+ 
+ #square {
+    width: 100px;
+    height: 100px;
+    background-color: blue;
+    margin: 100px auto;
+ }
+ 
+ 
