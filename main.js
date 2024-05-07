@@ -607,12 +607,12 @@ function postUserShot(results) {
   const div = document.getElementById("results-display");
   div.innerText = results.message;
   checkForWinner();
+  div.style.display = "block";
   if (state.winner) {
     div.innerText += " You sunk all my ships.  You win!";
     drawOcean();
     return null;
   }
-  div.style.display = "block";
   drawOcean();
   setTimeout(processComputerShot, 1000);
 }
