@@ -9,7 +9,7 @@ const oceanBackground = "#61cffa";
 const shotMissColor = "white";
 const shotHitColor = "red";
 const maxDamage = 2 + 3 + 5;
-const maxAttackShots = 6;
+const maxAttackShots = 10;
 const shipSizes = {
   Destroyer: 3,
   Cruiser: 6,
@@ -431,12 +431,17 @@ function computerSearch() {
 
 function computerDestroy () {
   // amount to allow test-point to be outside search-circle:
-  let fudge = 0;
-
+  let fudge = 20;
   let hit = state.destroyShots[0];
   let searchRadius = hit.r;
   r = Math.min(searchRadius * 0.75, radiusFromLethality(1));
-  let maxDistFromCenter = searchRadius - r;
+  if (state.attackShots == 0) {
+    // this is our first destroy-mode shot, make it in
+    // center of serch region:
+    state.attackShots +=1;
+    return {x: hit.x, y: hit.y, r: r};
+  }
+  let maxDistFromCenter = searchRadius - r + fudge;
   computerBombRadius = r;
   let candidateNumber = 200;
   let N = 1500;
@@ -479,12 +484,13 @@ function computerDestroy () {
         // tp not in user ocean:
         continue;
       }
-      if (state.destroyShots.length == 1) {
-        // this will be first shot in destroy-mode,
-        // so every tp in the proposed shot will be useful:
-        useful++;
-        continue;
-      }
+      // no longer needed:
+      // if (state.destroyShots.length == 1) {
+      //   // this will be first shot in destroy-mode,
+      //   // so every tp in the proposed shot will be useful:
+      //   useful++;
+      //   continue;
+      // }
       let prevDestroyShots = state.destroyShots.slice(0,1);
       let closePrev = prevDestroyShots.filter(function(shot) {
         let distance = dist(x1, y1, shot.x, shot.y);
@@ -505,6 +511,7 @@ function computerDestroy () {
   const best = candidates.reduce((max, current) => {
     return current.propUseful > max.propUseful ? current : max;
   }, candidates[0]);
+  state.attackShots +=1;
   return {x : best.x, y : best.y, r : r};
 }
   
@@ -556,10 +563,7 @@ function assessDamages(x, y, radius) {
     let ships;
     let attacking = state.shipsUnderAttack.length > 0;
     if (attacking) {
-      state.attackShots +=1;
       ships = state.shipsUnderAttack;
-      // NOTE:  we are assuming that while in destroy-mode
-      // no part of the shot goes outside of the search-area
     } else {
       ships = state.pShips.filter(s => s.damage < s.capacity);
     }
@@ -578,12 +582,8 @@ function assessDamages(x, y, radius) {
         ship.damage += d.damage;
         totalDamage += d.damage;
         message += `I hit your ${ship.type}. `;
-        //uHit.play();
-        //createHitShotDiv();
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
-          //createUShipSunkDiv();
-          //drawShip(ship.x, ship.y, ship.size, true);
           state.shipsUnderAttack = state.shipsUnderAttack
             .filter(s => s !== ship);
           if (state.shipsUnderAttack.length === 0) {
@@ -606,7 +606,11 @@ function assessDamages(x, y, radius) {
         state.attackShots = 0;
       }
     }
+    // for debugging:
+    //console.log(state.destroyShots);
+    // console.log(state.attackShots);
   }
+
   console.log(message);
   return {hit: hit, damage : totalDamage, message : message};
 }
@@ -754,7 +758,7 @@ function processComputerShot() {
   );
 
   function animateComputerShot() {
-    if (cRadius < computerBombRadius) {
+    if (cRadius < cShot.r) {
           cRadius += 2; 
           requestAnimationFrame(animateComputerShot);
           drawAnimatedCircle(cShot.x, cShot.y, cRadius);
@@ -772,7 +776,7 @@ function postComputerShot(results) {
   if (state.winner && state.winner == "c") {
     div.innerHTML += "<br>I sunk all your ships! I win!";
   }
-  console.log(div.innerHTML);
+  // console.log(div.innerHTML);
   div.style.display = "block";
   if (state.winner && state.winner == "c") {
     uLose.play();
