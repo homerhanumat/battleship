@@ -368,69 +368,129 @@ function placeShips() {
  * new computer-shot functions
  ******************************************/
 
-function computerShot() {
-  function search() {
-    // simple choice for now:
-    computerBombRadius = maxBombRadius;
-    let candidateNumber = 200;
-    let N = 1500;
-    let w = canvas.clientWidth;
-    let h = canvas.clientHeight;
-    let bh = (h - spaceBetweenOceans) / 2;
-    let candidates = [];
-    for (i = 1; i <= candidateNumber; i++) {
-      let newSpot = false;
-      let x, y;
-      while (!newSpot) {
-        x = w * Math.random();
-        let int = h / 2 + spaceBetweenOceans / 2;
-        let slope = h / 2 - spaceBetweenOceans / 2;
-        y = slope * Math.random() + int;
-        const closePreviousShots = state.cShots.filter(function(shot) {
-          let distance = dist(x, y, shot.x, shot.y);
-          return distance < shot.r;
-        });
-        if (closePreviousShots.length === 0) {
-          newSpot = true;
-        }
+function computerSearch() {
+  // simple choice for now:
+  computerBombRadius = maxBombRadius;
+  let candidateNumber = 200;
+  let N = 1500;
+  let w = canvas.clientWidth;
+  let h = canvas.clientHeight;
+  let candidates = [];
+  for (i = 1; i <= candidateNumber; i++) {
+    let newSpot = false;
+    let x, y;
+    while (!newSpot) {
+      x = w * Math.random();
+      let int = h / 2 + spaceBetweenOceans / 2;
+      let slope = h / 2 - spaceBetweenOceans / 2;
+      y = slope * Math.random() + int;
+      const closePreviousShots = state.cShots.filter(function(shot) {
+        let distance = dist(x, y, shot.x, shot.y);
+        return distance < shot.r;
+      });
+      if (closePreviousShots.length === 0) {
+        newSpot = true;
       }
-      let inRadius = 0;
-      let uncovered = 0;
-      for (j = 1; j <= N; j++) {
-        let x1 = x + (2 * Math.random() - 1) * computerBombRadius;
-        let y1 = y + (2 * Math.random() - 1) * computerBombRadius;
-        let d = dist(x, y, x1, y1);
-        if (d > computerBombRadius) {
-          continue;
-        }
-        inRadius++;
-        if (x1 < 0 || x1 > w) {
-          continue;
-        }
-        if (y1 < h / 2 + spaceBetweenOceans / 2 || y1 > h) {
-          continue;
-        }
-        let closePrev = state.cShots.filter(function(shot) {
-          let distance = dist(x1, y1, shot.x, shot.y);
-          return distance < shot.r;
-        });
-        if (closePrev.length === 0) {
-          uncovered++;
-        }
-      }
-      let propUncovered = uncovered / inRadius;
-      candidates.push({x : x, y : y, propUncovered : propUncovered});
     }
-    // for debugging:
-    // for (let c of candidates) {
-    //   drawFilledCircle(c.x, c.y, 2, 3, true);
-    // }
-    const best = candidates.reduce((max, current) => {
-      return current.propUncovered > max.propUncovered ? current : max;
-    }, candidates[0]);
-
-    return({x: best.x, y : best.y, r: computerBombRadius})
+    let inRadius = 0;
+    let uncovered = 0;
+    for (j = 1; j <= N; j++) {
+      let x1 = x + (2 * Math.random() - 1) * computerBombRadius;
+      let y1 = y + (2 * Math.random() - 1) * computerBombRadius;
+      let d = dist(x, y, x1, y1);
+      if (d > computerBombRadius) {
+        continue;
+      }
+      inRadius++;
+      if (x1 < 0 || x1 > w) {
+        continue;
+      }
+      if (y1 < h / 2 + spaceBetweenOceans / 2 || y1 > h) {
+        continue;
+      }
+      let closePrev = state.cShots.filter(function(shot) {
+        let distance = dist(x1, y1, shot.x, shot.y);
+        return distance < shot.r;
+      });
+      if (closePrev.length === 0) {
+        uncovered++;
+      }
+    }
+    let propUncovered = uncovered / inRadius;
+    candidates.push({x : x, y : y, propUncovered : propUncovered});
   }
+  
+  const best = candidates.reduce((max, current) => {
+    return current.propUncovered > max.propUncovered ? current : max;
+  }, candidates[0]);
+
+  return({x: best.x, y : best.y, r: computerBombRadius})
+}
+
+function computerDestroy () {
+  // amount to allow test-point to be outside search-circle:
+  let fudge = 10;
+
+  let hit = state.destroyShots[0];
+  let searchRadius = hit.r;
+  r = Math.min(searchRadius * 0.75, radiusFromLethality(1));
+  computerBombRadius = r;
+  let candidateNumber = 200;
+  let N = 1500;
+  let w = canvas.clientWidth;
+  let h = canvas.clientHeight;
+  let candidates = [];
+  for (i = 1; i <= candidateNumber; i++) {
+    let x = hit.x + (2 * Math.random() - 1) * searchRadius;
+    let y = hit.y + (2 * Math.random() - 1) * searchRadius;
+    let inRadius = 0;
+    let useful = 0;
+    for (j = 1; j <= N; j++) {
+      let x1 = x + (2 * Math.random() - 1) * r;
+      let y1 = y + (2 * Math.random() - 1) * r;
+      let d = dist(x, y, x1, y1);
+      if (d > r) {
+        continue;
+      }
+      inRadius++;
+      let d2 = dist(hit.x, hit.y, x1, y1);
+      if (d2 > searchRadius + fudge) {
+        continue;
+      }
+      if (x1 < 0 || x1 > w) {
+        continue;
+      }
+      if (y1 < h / 2 + spaceBetweenOceans / 2 || y1 > h) {
+        continue;
+      }
+      if (state.destroyShots.length == 1) {
+        useful++;
+        continue;
+      }
+      let closePrev = state.destroyShots.filter(function(shot) {
+        let distance = dist(x1, y1, shot.x, shot.y);
+        return distance < shot.r;
+      });
+      if (closePrev.length === 0) {
+        useful++;
+      }
+    }
+    let propUseful = useful / inRadius;
+    candidates.push({x : x, y : y, propUseful : propUseful});
+  }
+  // for debugging:
+  for (let c of candidates) {
+    drawFilledCircle(c.x, c.y, 2, 3, true);
+  }
+  const best = candidates.reduce((max, current) => {
+    return current.propUseful > max.propUseful ? current : max;
+  }, candidates[0]);
+  return {x : best.x, y : best.y, r : r};
+}
+  
+  
+
+function computerShot() {
 
   if (state.repeatShot) {
     let s = state.cShots[state.cShots.length - 1];
@@ -440,29 +500,10 @@ function computerShot() {
   }
 
   if (state.destroyShots.length > 0) { 
-    // find the search-circle 
-    // (circle in which to search for ships detected but
-    // not yet sunk):
-    let hit = state.destroyShots[0];
-    // get the radius of the circle in which to search:
-    let searchRadius = hit.r;
-    // select a radius so that >=1 unit of damage is done on a hit,
-    // and is less than half the radius of search-circle:
-    r = Math.min(searchRadius * 0.5, radiusFromLethality(1));
-    computerBombRadius = r;
-    // so that new shot does not go outside the search-circle,
-    // its center should be no further than this amount
-    // from the center of the search-circle:
-    let maxFromCenter = searchRadius - r;
-    // place the new shot randomly within the search-circle:
-    let x, y, angle;
-    angle = Math.random() * 2 * Math.PI;
-    x = hit.x + maxFromCenter * Math.cos(angle);
-    y = hit.y + maxFromCenter * Math.sin(angle);
-    return {x : x, y : y, r : r};
+    return computerDestroy();
   } else { 
     // if no previous hit then carry out random search:
-    return search();
+    return computerSearch();
   }
 }
 
