@@ -429,7 +429,7 @@ function computerSearch() {
 
 function computerDestroy () {
   // amount to allow test-point to be outside search-circle:
-  let fudge = 10;
+  let fudge = 0;
 
   let hit = state.destroyShots[0];
   let searchRadius = hit.r;
@@ -549,10 +549,14 @@ function assessDamages(x, y, radius) {
       ships = state.pShips.filter(s => s.damage < s.capacity);
     }
     for (let ship of ships) {
+      let shotPushed = false;
       let d = damage(ship.x, ship.y, x, y, ship.size, radius);
       if (d.close) {
         hit = true;
-        state.destroyShots.push({ x: x, y: y, r : radius});
+        if (!shotPushed) {
+          state.destroyShots.push({ x: x, y: y, r : radius});
+          shotPushed = true;
+        }
         if (!attacking) {
           state.shipsUnderAttack.push(ship);
         }
