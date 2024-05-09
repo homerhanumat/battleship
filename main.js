@@ -479,9 +479,9 @@ function computerDestroy () {
     candidates.push({x : x, y : y, propUseful : propUseful});
   }
   // for debugging:
-  for (let c of candidates) {
-    drawFilledCircle(c.x, c.y, 2, 3, true);
-  }
+  // for (let c of candidates) {
+  //   drawFilledCircle(c.x, c.y, 2, 3, true);
+  // }
   const best = candidates.reduce((max, current) => {
     return current.propUseful > max.propUseful ? current : max;
   }, candidates[0]);
