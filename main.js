@@ -9,6 +9,7 @@ const oceanBackground = "#61cffa";
 const shotMissColor = "white";
 const shotHitColor = "red";
 const maxDamage = 2 + 3 + 5;
+const maxAttackShots = 6;
 const shipSizes = {
   Destroyer: 3,
   Cruiser: 6,
@@ -205,6 +206,7 @@ const state = {
   destroyShots: [],
   // array to hold ships to be attacked:
   shipsUnderAttack: [],
+  attackShots: 0,
   // does computer need to repeat its previous shot?
   repeatShot: false,
   roundInProcess : false
@@ -434,6 +436,7 @@ function computerDestroy () {
   let hit = state.destroyShots[0];
   let searchRadius = hit.r;
   r = Math.min(searchRadius * 0.75, radiusFromLethality(1));
+  let maxDistFromCenter = searchRadius - r;
   computerBombRadius = r;
   let candidateNumber = 200;
   let N = 1500;
@@ -441,8 +444,16 @@ function computerDestroy () {
   let h = canvas.clientHeight;
   let candidates = [];
   for (i = 1; i <= candidateNumber; i++) {
-    let x = hit.x + (2 * Math.random() - 1) * searchRadius;
-    let y = hit.y + (2 * Math.random() - 1) * searchRadius;
+    let x, y;
+    let ok = false;
+    while (!ok) {
+      x = hit.x + (2 * Math.random() - 1) * searchRadius;
+      y = hit.y + (2 * Math.random() - 1) * searchRadius;
+      let d = dist(hit.x, hit.y, x, y);
+      if (d < maxDistFromCenter) {
+        ok = true;
+      }
+    }
     let inRadius = 0;
     let useful = 0;
     for (j = 1; j <= N; j++) {
@@ -512,7 +523,6 @@ function assessDamages(x, y, radius) {
   let message = "";
   let totalDamage = 0;
   if (state.shooting == "u") {
-    //message += `Your bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `
     let ships = state.cShips.filter(s => s.damage < s.capacity);
     for (let ship of ships) {
       let d = damage(ship.x, ship.y, x, y, ship.size, radius);
@@ -521,13 +531,9 @@ function assessDamages(x, y, radius) {
         ship.damage += d.damage;
         totalDamage += d.damage;
         message += `You hit my ${ship.type}. `;
-        //cHit.play();
-        //createUShipHitDiv();
       }
       if (ship.damage >= ship.capacity) {
         message += `You sunk my ${ship.type}! `;
-        //createSunkShipDiv();
-        //drawShip(ship.x, ship.y, ship.size, true);
       }
     }
     if (!hit) {
@@ -538,10 +544,10 @@ function assessDamages(x, y, radius) {
       }
     }
   } else {
-    //message += `My bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `;
     let ships;
     let attacking = state.shipsUnderAttack.length > 0;
     if (attacking) {
+      state.attackShots +=1;
       ships = state.shipsUnderAttack;
       // NOTE:  we are assuming that while in destroy-mode
       // no part of the shot goes outside of the search-area
@@ -583,6 +589,11 @@ function assessDamages(x, y, radius) {
     }
     if (!hit) {
       message += "I did not hit anything."
+      if (state.attackShots >= maxAttackShots) {
+        // give up and go back to searching:
+        state.shipsUnderAttack = [];
+        state.destroyShots = [];
+      }
     }
   }
   console.log(message);
