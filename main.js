@@ -447,8 +447,8 @@ function computerDestroy () {
     let x, y;
     let ok = false;
     while (!ok) {
-      x = hit.x + (2 * Math.random() - 1) * searchRadius;
-      y = hit.y + (2 * Math.random() - 1) * searchRadius;
+      x = hit.x + (2 * Math.random() - 1) * maxDistFromCenter;
+      y = hit.y + (2 * Math.random() - 1) * maxDistFromCenter;
       let d = dist(hit.x, hit.y, x, y);
       if (d < maxDistFromCenter) {
         ok = true;
@@ -457,32 +457,41 @@ function computerDestroy () {
     let inRadius = 0;
     let useful = 0;
     for (j = 1; j <= N; j++) {
+      // gnerate a test point:
       let x1 = x + (2 * Math.random() - 1) * r;
       let y1 = y + (2 * Math.random() - 1) * r;
       let d = dist(x, y, x1, y1);
       if (d > r) {
+        // tp not in bomb radius:
         continue;
       }
       inRadius++;
       let d2 = dist(hit.x, hit.y, x1, y1);
       if (d2 > searchRadius + fudge) {
+        // tp not in search area:
         continue;
       }
       if (x1 < 0 || x1 > w) {
+        // tp not in ocean:
         continue;
       }
-      if (y1 < h / 2 + spaceBetweenOceans / 2 || y1 > h) {
+      if (y1 < 0 || y1 > h / 2 - spaceBetweenOceans / 2) {
+        // tp not in user ocean:
         continue;
       }
       if (state.destroyShots.length == 1) {
+        // this will be first shot in destroy-mode,
+        // so every tp in the proposed shot will be useful:
         useful++;
         continue;
       }
-      let closePrev = state.destroyShots.filter(function(shot) {
+      let prevDestroyShots = state.destroyShots.shift();
+      let closePrev = prevDestroyShots.filter(function(shot) {
         let distance = dist(x1, y1, shot.x, shot.y);
         return distance < shot.r;
       });
       if (closePrev.length === 0) {
+        // tp is not in any previous destroy-mode shots:
         useful++;
       }
     }
