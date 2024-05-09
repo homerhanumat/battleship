@@ -3,7 +3,7 @@
  *************************************************/
 
 // parameters
-const spaceBetweenOceans = 30;
+const spaceBetweenOceans = 10;
 const gameBackground = "white";
 const oceanBackground = "#61cffa";
 const shotMissColor = "white";
@@ -267,7 +267,7 @@ function drawOcean() {
   // top border of computer area:
   ctx.fillRect(0, 0, w, bh);
   // bottom border of user area:
-  ctx.fillRect(0, bh + 10, w, h);
+  ctx.fillRect(0, bh + spaceBetweenOceans, w, h);
 
   // user shots (if requested):
   if (pHistory.checked) {
@@ -372,24 +372,64 @@ function computerShot() {
   function search() {
     // simple choice for now:
     computerBombRadius = maxBombRadius;
-  
-    let newSpot = false;
+    let candidateNumber = 200;
+    let N = 1500;
     let w = canvas.clientWidth;
     let h = canvas.clientHeight;
     let bh = (h - spaceBetweenOceans) / 2;
-    let x, y;
-    while(!newSpot) {
-      x = Math.random() * w;
-      y = bh + computerBombRadius + Math.random() * bh;
-      const closePreviousShots = state.cShots.filter(function(shot) {
-        let distance = dist(x, y, shot.x, shot.y);
-        return distance < shot.r;
-      });
-      if (closePreviousShots.length === 0) {
-        newSpot = true;
+    let candidates = [];
+    for (i = 1; i <= candidateNumber; i++) {
+      let newSpot = false;
+      let x, y;
+      while (!newSpot) {
+        x = w * Math.random();
+        let int = h / 2 + spaceBetweenOceans / 2;
+        let slope = h / 2 - spaceBetweenOceans / 2;
+        y = slope * Math.random() + int;
+        const closePreviousShots = state.cShots.filter(function(shot) {
+          let distance = dist(x, y, shot.x, shot.y);
+          return distance < shot.r;
+        });
+        if (closePreviousShots.length === 0) {
+          newSpot = true;
+        }
       }
+      let inRadius = 0;
+      let uncovered = 0;
+      for (j = 1; j <= N; j++) {
+        let x1 = x + (2 * Math.random() - 1) * computerBombRadius;
+        let y1 = y + (2 * Math.random() - 1) * computerBombRadius;
+        let d = dist(x, y, x1, y1);
+        if (d > computerBombRadius) {
+          continue;
+        }
+        inRadius++;
+        if (x1 < 0 || x1 > w) {
+          continue;
+        }
+        if (y1 < h / 2 + spaceBetweenOceans / 2 || y1 > h) {
+          continue;
+        }
+        let closePrev = state.cShots.filter(function(shot) {
+          let distance = dist(x1, y1, shot.x, shot.y);
+          return distance < shot.r;
+        });
+        if (closePrev.length === 0) {
+          uncovered++;
+        }
+      }
+      let propUncovered = uncovered / inRadius;
+      candidates.push({x : x, y : y, propUncovered : propUncovered});
     }
-    return({x: x, y : y, r: computerBombRadius})
+    // for debugging:
+    // for (let c of candidates) {
+    //   drawFilledCircle(c.x, c.y, 2, 3, true);
+    // }
+    const best = candidates.reduce((max, current) => {
+      return current.propUncovered > max.propUncovered ? current : max;
+    }, candidates[0]);
+
+    return({x: best.x, y : best.y, r: computerBombRadius})
   }
 
   if (state.repeatShot) {
