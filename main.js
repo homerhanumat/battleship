@@ -579,6 +579,7 @@ function assessDamages(x, y, radius) {
             .filter(s => s !== ship);
           if (state.shipsUnderAttack.length === 0) {
             state.destroyShots = [];
+            state.attackShots = 0;
           }
         } else {
           if (attacking) {
@@ -593,6 +594,7 @@ function assessDamages(x, y, radius) {
         // give up and go back to searching:
         state.shipsUnderAttack = [];
         state.destroyShots = [];
+        state.attackShots = 0;
       }
     }
   }
