@@ -532,6 +532,10 @@ function assessDamages(x, y, radius) {
     }
     if (!hit) {
       message += "You did not hit anything."
+      let h = canvas.clientHeight;
+      if (y > h / 2 - spaceBetweenOceans / 2 + radius) {
+        message += " Surely you jest!";
+      }
     }
   } else {
     //message += `My bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `;
