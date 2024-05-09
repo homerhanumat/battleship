@@ -485,7 +485,7 @@ function computerDestroy () {
         useful++;
         continue;
       }
-      let prevDestroyShots = state.destroyShots.shift();
+      let prevDestroyShots = state.destroyShots.slice(0,1);
       let closePrev = prevDestroyShots.filter(function(shot) {
         let distance = dist(x1, y1, shot.x, shot.y);
         return distance < shot.r;
