@@ -124,9 +124,10 @@ i {
   box-sizing: border-box;
   width: 75vh;
   height: 75vh;
-  background-color: rgb(96, 96, 96);
+  background-color: rgb(235, 235, 235);
   border-radius: 15px;
   padding: 10px;
+  border: .5rem solid rgba(96, 96, 96);
 }
 
 .settings-text {
@@ -136,19 +137,20 @@ i {
   margin-top: 0;
 }
 
-.shotHistory{
+#shotHistory{
   grid-area: shotHistory;
   display: grid;
   grid-template-areas: 
   'options'
   'table';
-  row-gap: 1vh;
+  row-gap: 3vh;
   grid-template-rows: auto 80%;
 }
 
-.fieldset {
+#fieldset {
   grid-area: options;
   border-radius: 10px;
+  position: relative;
 }
 
 .shotTable {
@@ -157,17 +159,17 @@ i {
   grid-template-areas:
   'table'
   'narrative';
-  grid-template-rows: auto auto;
 }
 
 .shipGrid {
   grid-area: table;
 }
-
-.shipReport {
+.narrativeGrid{
   grid-area: narrative;
 }
-
+#narrative {
+  font-size: large;
+}
 .mobile-button-container {
   display: none;
   z-index: 5;
@@ -180,13 +182,13 @@ i {
   display: none;
   justify-content: center;
   align-items: center;
-  background-color: #ffffff;
+  background-color: rgba(235, 235, 235);
   padding: 15px;
   border-radius: 15px;
   position: absolute;
   left: 50%;
   transform: translate(-50%);
-  bottom: 2%;
+  bottom: 5%;
   z-index: 10;
 }
 
@@ -300,18 +302,22 @@ tr:nth-child(even) {
   animation-name: fadeInComputer;
   animation-duration: 3s;
 }
+.checkboxes{
+  position: absolute;
+  right: 10px;
+}
 
 @keyframes fadeInUser {
   0% {color:rgba(255, 255, 255, 0); bottom: 10px}
-  5% {color: black; bottom: 80%}
-  95% {color: black; bottom: 80%}
+  5% {color: black; bottom: 82.5%}
+  95% {color: black; bottom: 82.5%}
   100% {color:rgba(255, 255, 255, 0); bottom: 10px}
 }
 
 @keyframes fadeInComputer {
   0% {color:rgba(255, 255, 255, 0); bottom: 10px}
-  5% {color: black; bottom: 40%}
-  95% {color: black; bottom: 40%}
+  5% {color: black; bottom: 45%}
+  95% {color: black; bottom: 45%}
   100% {color:rgba(255, 255, 255, 0); bottom: 10px}
 }
 
@@ -607,3 +613,4 @@ tr:nth-child(even) {
       z-index: 40;
      }
 }
+
