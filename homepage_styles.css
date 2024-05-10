@@ -6,10 +6,10 @@
  
  
  html {
-    background-image: url('images/battleship-background.jpg');
-    background-size: contain;
-    background-repeat: no-repeat;
- }
+   background-image: url('images/battleship-background.jpg');
+   background-size: auto;
+   background-repeat: no-repeat;
+}
  
  html,body {
     margin:0;
@@ -67,39 +67,6 @@
   transform: translateY(4px);
  }
  
- .slideshow {
-    display: flex;
-    justify-content: center;
- 
-    max-width: 1000px;
-    position: relative;
-    margin: auto;
- }
-  
- .prev, .next {
-    cursor: pointer;
-    position: absolute;
-    top: 50%;
-    width: auto;
-    margin-top: -22px;
-    padding: 16px;
-    color: white;
-    font-weight: bold;
-    font-size: 18px;
-    transition: 0.6s ease;
-    border-radius: 0 3px 3px 0;
-    user-select: none;
- }
-  
- .next {
-    right: 0;
-    border-radius: 3px 0 0 3px;
- }
-  
- .prev:hover, .next:hover {
-    background-color: rgba(0,0,0,0.8);
- }
-  
  .text {
     color: #f2f2f2;
     font-size: 15px;
@@ -109,15 +76,15 @@
     width: 100%;
     text-align: center;
  }
+
+ a {
+   text-wrap: nowrap;
+ }
   
  .active, .dot:hover {
     background-color: #717171;
  }
  
- .slide {
-    display: none;
-    background-color: #be0000;
- }
  
  .links-container {
     position: absolute;
@@ -154,4 +121,54 @@
     margin: 100px auto;
  }
  
- 
+ @media screen and (max-width: 1000px) {
+   .logo-homepage {
+      margin: 5rem auto 3rem auto;
+      display: block;
+      width: 30rem;
+      height: auto;
+   }
+
+   h2 {
+      margin-top: -2rem;
+      margin-bottom: 5rem
+   }
+
+   .button-border {
+      border: 5px solid red;
+      padding: 5px;
+      border-radius: 20px;
+   }
+   
+   .play-button {
+    display: inline-block;
+    padding: 1px 5px;
+    font-family: "Roboto Mono", monospace;
+    font-size: 65px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: #fff;
+    background-color: red;
+    border-radius: 15px;
+   }
+ }
+
+ @media screen and (max-width: 500px) {
+   .logo-homepage {
+      margin: 5rem auto 3rem auto;
+      display: block;
+      width: 20rem;
+      height: auto;
+   }
+
+   h2 {
+      font-size: 18px;
+      margin-top: -2.5rem;
+   }
+
+   .links {
+      display: none;
+   }
+ }

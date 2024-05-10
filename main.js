@@ -803,16 +803,20 @@ function postComputerShot(results) {
 
 // First button (settings):
 let buttonGear = document.getElementById("button-gear");
-let menuDiv = document.getElementById("menuContainer");
+let menuDiv = document.getElementById("menuItemsContainer");
+let menuWrapper = document.getElementById("menuWrapper");
 
 // Second button (sliders):
 let sliderButton = document.getElementById("button-slider");
 let sliderMenu = document.getElementById("slider-menu");
 
+// Mobile buttons:
+let mobileButtonGear = document.getElementById("mobile-button-gear");
+let mobileSliderButton = document.getElementById("mobile-button-slider");
 
 let openClose = function(openContainer) {
   if (openContainer.style.display == "" || openContainer.style.display == "none") {
-    openContainer.style.display = "grid";
+    openContainer.style.display = "flex";
   } else {
     openContainer.style.display = "none";
   }
@@ -820,6 +824,7 @@ let openClose = function(openContainer) {
 window.addEventListener('resize', resizeCanvas);
 
 buttonGear.addEventListener("click", function() {
+  openClose(menuWrapper);
   openClose(menuDiv);
 });
 
@@ -827,4 +832,12 @@ sliderButton.addEventListener("click", function() {
   openClose(sliderMenu);
 });
 
+mobileButtonGear.addEventListener("click", function() {
+  openClose(menuWrapper);
+  openClose(menuDiv);
+})
+
+mobileSliderButton.addEventListener("click", function() {
+  openClose(sliderMenu);
+});
 
