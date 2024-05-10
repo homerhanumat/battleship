@@ -60,8 +60,9 @@
               <input type="checkbox" id="computer-shots" name="computer-shots" checked/>
                 <label for="computer-shots">Enable opponent's shot history</label>
               <br>
-              <input type="checkbox" id="audio-preference" name="audio-preference" checked/>
-                <label for="audio-preference">Enable game sounds</label>
+              <label for="volume-preference">Volume: </label>
+              <input type="range" min="0" max="1" value="0" step=".01" id="volume-preference" oninput="volumeSlider.value = this.value">
+              <output id="volumeSlider">0</output>
           </fieldset>
         </div>
         <div class="ship_data_wrapper">

@@ -318,6 +318,10 @@ tr:nth-child(even) {
   position: absolute;
   right: 10px;
 }
+#volume-preference{
+  position: absolute;
+  right: 10px;
+}
 @keyframes fadeInUser {
   0% {color:rgba(255, 255, 255, 0); bottom: 10px}
   5% {color: black; bottom: 82.5%}

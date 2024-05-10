@@ -38,6 +38,7 @@ const uLose = new Audio("Sounds/uLoseAlt.mp3");
 const uHit = new Audio("Sounds/uHit.mp3");
 const cHit = new Audio("Sounds/cHit.mp3");
 
+
 // html elements
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -81,19 +82,24 @@ cHistory.addEventListener("change", drawOcean);
 const shipReport = document.getElementById("ship-report");
 const narrative = document.getElementById("narrative");
 
-const audio = document.getElementById("audio-preference");
-audio.addEventListener("change", function() { // set volume of sound effects when user changes preference
-  uWin.volume = audio.checked ? 0.01 : 0;
-  uLose.volume = audio.checked ? 0.5 : 0;
-  uHit.volume = audio.checked ? 0.01 : 0;
-  cHit.volume = audio.checked ? 0.025 : 0;
-});
 window.addEventListener("DOMContentLoaded", function() { // set volume of sound effects when page loads
-  uWin.volume = audio.checked ? 0.01 : 0;
-  uLose.volume = audio.checked ? 0.5 : 0;
-  uHit.volume = audio.checked ? 0.01 : 0;
-  cHit.volume = audio.checked ? 0.025 : 0;
+  uWin.volume = parseFloat(volume.value);
+  uLose.volume = parseFloat(volume.value);
+  uHit.volume = parseFloat(volume.value);
+  cHit.volume = parseFloat(volume.value);
 });
+
+const volume = document.getElementById("volume-preference");
+const volumeDisplay = document.getElementById("volumeSlider");
+
+volume.addEventListener("input", function() {
+  uWin.volume = parseFloat(volume.value);
+  uLose.volume = parseFloat(volume.value);
+  uHit.volume = parseFloat(volume.value);
+  cHit.volume = parseFloat(volume.value);
+  volumeDisplay.innerText = (parseFloat(volume.value)*100).toFixed(0);
+})
+
 
 const bombDamageSlider = document.getElementById("shotPower");
 
