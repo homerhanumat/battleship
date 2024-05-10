@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tiger Battleship</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <img src="images/battleship_logo.png" alt="BATTLESHIP" class="logo">
+    <div class="middle-container">
+      <div class="mobile-button-container">
+        <div id="mobile-button-gear" class="mobile-button">
+          <i class="fa-solid fa-gear"></i>
+        </div>
+        <div id="mobile-button-slider" class="mobile-button power-slider">
+          <i class="fa-solid fa-bomb"></i>
+        </div>
+        <div class="mobile-button">
+          <a href="index.html"><i class="fa-solid fa-house"></i></a>
+        </div>
+      </div>
+      <div class="button-container">
+        <div id="button-slider" class="button">
+          <i class="fa-solid fa-bomb"></i>
+        </div>
+        <div id="button-gear" class="button">
+          <i class="fa-solid fa-gear"></i>
+        </div>
+        <div class="button">
+          <a href="index.html"><i class="fa-solid fa-house"></i></a>
+        </div>
+      </div>
+      <div id="screen-box">
+        <canvas id="canvas" width="10" height="10" style="border:1px solid #000000;"></canvas>
+      </div>
+      <div class="empty-container"></div>
+    </div>
+  </div>
+  <div id="slider-menu">
+    <label for="shotPower" class="slider-text">Power</label>
+    <input type="range" min="0.01" max="4.99" value="1.35" step=".01"  id="shotPower" class="vslider">
+    <output id = "shotPowerDisplay">1.35</output>
+    <div id="down-arrow"></div>
+    </div>
+  </div>
+  <div class="menu-containers-wrapper" id="menuWrapper">
+    <div class="empty-logo-space"></div>
+    <div id="menuItemsContainer">
+      <div class="empty-container"></div>
+      <div class="menuScreen">
+        <h2 class="settings-text">Menu</h2>
+        <div id="shotHistory">
+          <fieldset id="fieldset">
+            <legend>Settings:</legend>
+              <input type="checkbox" id="user-shots" name="user-shots" checked/>
+                <label for="user-shots">Enable your shot history</label>
+              <br>
+              <input type="checkbox" id="computer-shots" name="computer-shots" checked/>
+                <label for="computer-shots">Enable opponent's shot history</label>
+              <br>
+              <input type="checkbox" id="audio-preference" name="audio-preference" checked/>
+                <label for="audio-preference">Enable game sounds</label>
+          </fieldset>
+        </div>
+        <div class="ship_data_wrapper">
+          <div class="shipReport">
+            <table id="ship-report"></table>
+          </div>
+          <div class="narrativeGrid">
+            <p2 id="narrative"></p2>
+          </div>
+        </div>
+      </div>
+      <div class="empty-container"></div>
+    </div>
+  </div>
+  <div id="ball"></div>
+  <div id="results-display" style="display: none;"></div>
+  <div id="comp-results-display" style="display: none;"></div>
+  <script src="main.js"></script>
+  <script src="https://kit.fontawesome.com/40df24b4fa.js" crossorigin="anonymous"></script>
+</body>
+</html>

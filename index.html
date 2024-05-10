@@ -1,71 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-<link rel="stylesheet" href="styles.css">
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+   <title>BATTLESHIP Homepage</title>
+
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+
+   <link rel="stylesheet" href="homepage_styles.css">
 </head>
 <body>
-  <div id="ball"></div>
-    <img src="images/battleship_logo.png" alt="BATTLESHIP" class="logo">
-    <div class="container">
-        <div class="button-container">
-            <div id="button">
-                <i class="fa-solid fa-gear"></i>
-            </div>
-            <div id="button">
-                <i class="fa-solid fa-info"></i>
-            </div>
-        </div>
-        <div id="screen-box">
-            <canvas id="canvas" width="900" height="900" style="border:1px solid #000000;"></canvas>
-        </div>
-        <div class="empty-container"></div>
+   <img src="images/battleship_logo.png" class="logo-homepage">
+   <h2>CSC 470 Edition</h2>
+   <div class="button-wrapper">
+       <div class="button-border">
+           <a href="game.html" class="play-button">PLAY</a>
+       </div>
+   </div>
+
+
+<div class="links-container">
+    <div class="links">
+        <a href="#" class="link">How to Play</a>
+        <a href="https://github.com/homerhanumat/battleship" class="link">About</a>
     </div>
-    <div id="menu-container">
-        <div class="menuScreen">
-            <div class="item2" id="shotHistory">
-                <fieldset id="fieldset">
-                  <legend>Shot history:</legend>
-                    <input type="checkbox" id="user-shots" name="user-shots" checked/>
-                      <label for="user-shots">Enable your shot history</label>
-                      <br>
-                       <input type="checkbox" id="computer-shots" name="computer-shots" checked/>
-                      <label for="computer-shots">Enable opponent's shot history</label>
-                      <br>
-                      <input type="checkbox" id="audio-preference" name="audio-preference" checked/>
-                      <label for="audio-preference">Disable game sounds</label>
-                </fieldset>
-                <div class="item4">
-                    <div class="shotMenu1">
-                      <div class="sliderDIV1">
-                        <label for="shotPower">Bomb Power</label>
-                        <input type="range" min="0.01" max="4.99" value="1.35" step=".01"  id="shotPower" class="vslider">
-                      </div>
-                      <div class="sliderDIV2">  
-                        <label for="shotSize">Bomb Radius</label>
-                        <input type="range" min="0.1" max="99.8" value="50" step=".01"  id="shotSize" class="vslider">
-                      </div>
-                      <div class="sliderOutput1">
-                        <output id = "shotPowerDisplay">1.35</output>
-                      </div>
-                      <div class="sliderOutput2">
-                        <output id = "shotSizeDisplay">50%</output>
-                      </div>
-                    </div>
-                    <div class="shotMenu3">
-                        <div class="narrativeGrid">
-                          <p2 id="narrative"></p2>
-                        </div>
-                        <div class="shipReport">
-                          <table id="ship-report"></table>
-                        </div>
-                    </div>
-        </div>
-    </div>
-    
-    <script src="main.js"></script>
-    <script src="https://kit.fontawesome.com/40df24b4fa.js" crossorigin="anonymous"></script>
+</div>
+
 </body>
 </html>
