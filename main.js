@@ -3,12 +3,13 @@
  *************************************************/
 
 // parameters
-const spaceBetweenOceans = 30;
+const spaceBetweenOceans = 10;
 const gameBackground = "white";
 const oceanBackground = "#61cffa";
 const shotMissColor = "white";
 const shotHitColor = "red";
 const maxDamage = 2 + 3 + 5;
+const maxAttackShots = 10;
 const shipSizes = {
   Destroyer: 3,
   Cruiser: 6,
@@ -205,6 +206,7 @@ const state = {
   destroyShots: [],
   // array to hold ships to be attacked:
   shipsUnderAttack: [],
+  attackShots: 0,
   // does computer need to repeat its previous shot?
   repeatShot: false,
   roundInProcess : false
@@ -267,7 +269,7 @@ function drawOcean() {
   // top border of computer area:
   ctx.fillRect(0, 0, w, bh);
   // bottom border of user area:
-  ctx.fillRect(0, bh + 10, w, h);
+  ctx.fillRect(0, bh + spaceBetweenOceans, w, h);
 
   // user shots (if requested):
   if (pHistory.checked) {
@@ -368,19 +370,22 @@ function placeShips() {
  * new computer-shot functions
  ******************************************/
 
-function computerShot() {
-  function search() {
-    // simple choice for now:
-    computerBombRadius = maxBombRadius;
-  
+function computerSearch() {
+  // simple choice for now:
+  computerBombRadius = maxBombRadius;
+  let candidateNumber = 200;
+  let N = 1500;
+  let w = canvas.clientWidth;
+  let h = canvas.clientHeight;
+  let candidates = [];
+  for (i = 1; i <= candidateNumber; i++) {
     let newSpot = false;
-    let w = canvas.clientWidth;
-    let h = canvas.clientHeight;
-    let bh = (h - spaceBetweenOceans) / 2;
     let x, y;
-    while(!newSpot) {
-      x = Math.random() * w;
-      y = bh + computerBombRadius + Math.random() * bh;
+    while (!newSpot) {
+      x = w * Math.random();
+      let int = h / 2 + spaceBetweenOceans / 2;
+      let slope = h / 2 - spaceBetweenOceans / 2;
+      y = slope * Math.random() + int;
       const closePreviousShots = state.cShots.filter(function(shot) {
         let distance = dist(x, y, shot.x, shot.y);
         return distance < shot.r;
@@ -389,8 +394,130 @@ function computerShot() {
         newSpot = true;
       }
     }
-    return({x: x, y : y, r: computerBombRadius})
+    let inRadius = 0;
+    let uncovered = 0;
+    for (j = 1; j <= N; j++) {
+      let x1 = x + (2 * Math.random() - 1) * computerBombRadius;
+      let y1 = y + (2 * Math.random() - 1) * computerBombRadius;
+      let d = dist(x, y, x1, y1);
+      if (d > computerBombRadius) {
+        continue;
+      }
+      inRadius++;
+      if (x1 < 0 || x1 > w) {
+        continue;
+      }
+      if (y1 < h / 2 + spaceBetweenOceans / 2 || y1 > h) {
+        continue;
+      }
+      let closePrev = state.cShots.filter(function(shot) {
+        let distance = dist(x1, y1, shot.x, shot.y);
+        return distance < shot.r;
+      });
+      if (closePrev.length === 0) {
+        uncovered++;
+      }
+    }
+    let propUncovered = uncovered / inRadius;
+    candidates.push({x : x, y : y, propUncovered : propUncovered});
   }
+  
+  const best = candidates.reduce((max, current) => {
+    return current.propUncovered > max.propUncovered ? current : max;
+  }, candidates[0]);
+
+  return({x: best.x, y : best.y, r: computerBombRadius})
+}
+
+function computerDestroy () {
+  // amount to allow test-point to be outside search-circle:
+  let fudge = 20;
+  let hit = state.destroyShots[0];
+  let searchRadius = hit.r;
+  r = Math.min(searchRadius * 0.75, radiusFromLethality(1));
+  if (state.attackShots == 0) {
+    // this is our first destroy-mode shot, make it in
+    // center of serch region:
+    state.attackShots +=1;
+    return {x: hit.x, y: hit.y, r: r};
+  }
+  let maxDistFromCenter = searchRadius - r + fudge;
+  computerBombRadius = r;
+  let candidateNumber = 200;
+  let N = 1500;
+  let w = canvas.clientWidth;
+  let h = canvas.clientHeight;
+  let candidates = [];
+  for (i = 1; i <= candidateNumber; i++) {
+    let x, y;
+    let ok = false;
+    while (!ok) {
+      x = hit.x + (2 * Math.random() - 1) * maxDistFromCenter;
+      y = hit.y + (2 * Math.random() - 1) * maxDistFromCenter;
+      let d = dist(hit.x, hit.y, x, y);
+      if (d < maxDistFromCenter) {
+        ok = true;
+      }
+    }
+    let inRadius = 0;
+    let useful = 0;
+    for (j = 1; j <= N; j++) {
+      // gnerate a test point:
+      let x1 = x + (2 * Math.random() - 1) * r;
+      let y1 = y + (2 * Math.random() - 1) * r;
+      let d = dist(x, y, x1, y1);
+      if (d > r) {
+        // tp not in bomb radius:
+        continue;
+      }
+      inRadius++;
+      let d2 = dist(hit.x, hit.y, x1, y1);
+      if (d2 > searchRadius + fudge) {
+        // tp not in search area:
+        continue;
+      }
+      if (x1 < 0 || x1 > w) {
+        // tp not in ocean:
+        continue;
+      }
+      if (y1 < 0 || y1 > h / 2 - spaceBetweenOceans / 2) {
+        // tp not in user ocean:
+        continue;
+      }
+      // no longer needed:
+      // if (state.destroyShots.length == 1) {
+      //   // this will be first shot in destroy-mode,
+      //   // so every tp in the proposed shot will be useful:
+      //   useful++;
+      //   continue;
+      // }
+      let prevDestroyShots = state.destroyShots.slice(0,1);
+      let closePrev = prevDestroyShots.filter(function(shot) {
+        let distance = dist(x1, y1, shot.x, shot.y);
+        return distance < shot.r;
+      });
+      if (closePrev.length === 0) {
+        // tp is not in any previous destroy-mode shots:
+        useful++;
+      }
+    }
+    let propUseful = useful / inRadius;
+    candidates.push({x : x, y : y, propUseful : propUseful});
+  }
+  // for debugging:
+  // for (let c of candidates) {
+  //   drawFilledCircle(c.x, c.y, 2, 3, true);
+  // }
+  const best = candidates.reduce((max, current) => {
+    return current.propUseful > max.propUseful ? current : max;
+  }, candidates[0]);
+  state.attackShots +=1;
+  return {x : best.x, y : best.y, r : r};
+}
+  
+  
+
+function computerShot() {
 
   if (state.repeatShot) {
     let s = state.cShots[state.cShots.length - 1];
@@ -400,29 +527,10 @@ function computerShot() {
   }
 
   if (state.destroyShots.length > 0) { 
-    // find the search-circle 
-    // (circle in which to search for ships detected but
-    // not yet sunk):
-    let hit = state.destroyShots[0];
-    // get the radius of the circle in which to search:
-    let searchRadius = hit.r;
-    // select a radius so that >=1 unit of damage is done on a hit,
-    // and is less than half the radius of search-circle:
-    r = Math.min(searchRadius * 0.5, radiusFromLethality(1));
-    computerBombRadius = r;
-    // so that new shot does not go outside the search-circle,
-    // its center should be no further than this amount
-    // from the center of the search-circle:
-    let maxFromCenter = searchRadius - r;
-    // place the new shot randomly within the search-circle:
-    let x, y, angle;
-    angle = Math.random() * 2 * Math.PI;
-    x = hit.x + maxFromCenter * Math.cos(angle);
-    y = hit.y + maxFromCenter * Math.sin(angle);
-    return {x : x, y : y, r : r};
+    return computerDestroy();
   } else { 
     // if no previous hit then carry out random search:
-    return search();
+    return computerSearch();
   }
 }
 
@@ -431,7 +539,6 @@ function assessDamages(x, y, radius) {
   let message = "";
   let totalDamage = 0;
   if (state.shooting == "u") {
-    //message += `Your bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `
     let ships = state.cShips.filter(s => s.damage < s.capacity);
     for (let ship of ships) {
       let d = damage(ship.x, ship.y, x, y, ship.size, radius);
@@ -440,50 +547,48 @@ function assessDamages(x, y, radius) {
         ship.damage += d.damage;
         totalDamage += d.damage;
         message += `You hit my ${ship.type}. `;
-        //cHit.play();
-        //createUShipHitDiv();
       }
       if (ship.damage >= ship.capacity) {
         message += `You sunk my ${ship.type}! `;
-        //createSunkShipDiv();
-        //drawShip(ship.x, ship.y, ship.size, true);
       }
     }
     if (!hit) {
       message += "You did not hit anything."
+      let h = canvas.clientHeight;
+      if (y > h / 2 - spaceBetweenOceans / 2 + radius) {
+        message += " Surely you jest!";
+      }
     }
   } else {
-    //message += `My bomb explodes at (${Math.round(x)}, ${Math.round(y)}). `;
     let ships;
     let attacking = state.shipsUnderAttack.length > 0;
     if (attacking) {
       ships = state.shipsUnderAttack;
-      // NOTE:  we are assuming that while in destroy-mode
-      // no part of the shot goes outside of the search-area
     } else {
       ships = state.pShips.filter(s => s.damage < s.capacity);
     }
     for (let ship of ships) {
+      let shotPushed = false;
       let d = damage(ship.x, ship.y, x, y, ship.size, radius);
       if (d.close) {
         hit = true;
-        state.destroyShots.push({ x: x, y: y, r : radius});
+        if (!shotPushed) {
+          state.destroyShots.push({ x: x, y: y, r : radius});
+          shotPushed = true;
+        }
         if (!attacking) {
           state.shipsUnderAttack.push(ship);
         }
         ship.damage += d.damage;
         totalDamage += d.damage;
         message += `I hit your ${ship.type}. `;
-        //uHit.play();
-        //createHitShotDiv();
         if (ship.damage >= ship.capacity) {
           message += `I sunk your ${ship.type}! `;
-          //createUShipSunkDiv();
-          //drawShip(ship.x, ship.y, ship.size, true);
           state.shipsUnderAttack = state.shipsUnderAttack
             .filter(s => s !== ship);
           if (state.shipsUnderAttack.length === 0) {
             state.destroyShots = [];
+            state.attackShots = 0;
           }
         } else {
           if (attacking) {
@@ -494,8 +599,18 @@ function assessDamages(x, y, radius) {
     }
     if (!hit) {
       message += "I did not hit anything."
+      if (state.attackShots >= maxAttackShots) {
+        // give up and go back to searching:
+        state.shipsUnderAttack = [];
+        state.destroyShots = [];
+        state.attackShots = 0;
+      }
     }
+    // for debugging:
+    //console.log(state.destroyShots);
+    // console.log(state.attackShots);
   }
+
   console.log(message);
   return {hit: hit, damage : totalDamage, message : message};
 }
@@ -643,7 +758,7 @@ function processComputerShot() {
   );
 
   function animateComputerShot() {
-    if (cRadius < computerBombRadius) {
+    if (cRadius < cShot.r) {
           cRadius += 2; 
           requestAnimationFrame(animateComputerShot);
           drawAnimatedCircle(cShot.x, cShot.y, cRadius);
@@ -661,7 +776,7 @@ function postComputerShot(results) {
   if (state.winner && state.winner == "c") {
     div.innerHTML += "<br>I sunk all your ships! I win!";
   }
-  console.log(div.innerHTML);
+  // console.log(div.innerHTML);
   div.style.display = "block";
   if (state.winner && state.winner == "c") {
     uLose.play();
@@ -688,16 +803,20 @@ function postComputerShot(results) {
 
 // First button (settings):
 let buttonGear = document.getElementById("button-gear");
-let menuDiv = document.getElementById("menuContainer");
+let menuDiv = document.getElementById("menuItemsContainer");
+let menuWrapper = document.getElementById("menuWrapper");
 
 // Second button (sliders):
 let sliderButton = document.getElementById("button-slider");
 let sliderMenu = document.getElementById("slider-menu");
 
+// Mobile buttons:
+let mobileButtonGear = document.getElementById("mobile-button-gear");
+let mobileSliderButton = document.getElementById("mobile-button-slider");
 
 let openClose = function(openContainer) {
   if (openContainer.style.display == "" || openContainer.style.display == "none") {
-    openContainer.style.display = "grid";
+    openContainer.style.display = "flex";
   } else {
     openContainer.style.display = "none";
   }
@@ -705,6 +824,7 @@ let openClose = function(openContainer) {
 window.addEventListener('resize', resizeCanvas);
 
 buttonGear.addEventListener("click", function() {
+  openClose(menuWrapper);
   openClose(menuDiv);
 });
 
@@ -712,4 +832,11 @@ sliderButton.addEventListener("click", function() {
   openClose(sliderMenu);
 });
 
+mobileButtonGear.addEventListener("click", function() {
+  openClose(menuDiv);
+  openClose(menuDiv);
+})
 
+mobileSliderButton.addEventListener("click", function() {
+  openClose(sliderMenu);
+});
